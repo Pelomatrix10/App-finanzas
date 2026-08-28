@@ -1,782 +1,986 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mis Finanzas — Estudio</title>
-<link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<meta name="theme-color" content="#17140f">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink: #17140f;
-    --ink-2: #201c15;
-    --paper: #f2ead9;
-    --paper-dim: #cbc0a8;
-    --brass: #c69a52;
-    --brass-soft: rgba(198,154,82,.16);
-    --moss: #8a9a7e;
-    --moss-bg: rgba(138,154,126,.14);
-    --terracotta: #b5602f;
-    --terracotta-bg: rgba(181,96,47,.16);
-    --oxide: #a23c26;
-    --oxide-bg: rgba(162,60,38,.18);
-    --line: rgba(242,234,217,.14);
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0; padding:0;}
-  body{
-    background:var(--ink);
-    color:var(--paper);
-    font-family:'Inter',sans-serif;
-    display:flex;
-    justify-content:center;
-  }
-  .app{
-    width:100%;
-    max-width:460px;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    background:
-      radial-gradient(1200px 400px at 50% -10%, rgba(198,154,82,.10), transparent),
-      var(--ink);
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    
+    <!-- PWA & iOS App Config -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mis Finanzas">
+    <meta name="theme-color" content="#1f2937">
+    <meta name="description" content="Trackea tus ingresos, deudas y pagos a proveedores">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mis Finanzas">
+    <meta name="theme-color" content="#1f2937">
+    <meta name="format-detection" content="telephone=no">
+<title>Mis Finanzas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  header{
-    padding:30px 22px 16px 22px;
-    border-bottom:1px solid var(--line);
-  }
-  .eyebrow{
-    font-family:'Bebas Neue', sans-serif;
-    font-size:14px;
-    letter-spacing:.16em;
-    text-transform:uppercase;
-    color:var(--brass);
-    margin-bottom:6px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--brass); display:inline-block;}
-  header h1{
-    font-family:'Anton', sans-serif;
-    font-weight:400;
-    font-size:32px;
-    margin:0 0 6px 0;
-    letter-spacing:-.01em;
-    text-transform:uppercase;
-    line-height:.95;
-  }
-  header p.sub{ margin:0; font-size:13px; color:var(--paper-dim); line-height:1.5; }
+        html, body {
+            width: 100%;
+            height: 100%;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
 
-  nav.tabs{
-    display:flex; padding:0 8px; border-bottom:1px solid var(--line); gap:2px;
-    overflow-x:auto; scrollbar-width:none;
-  }
-  nav.tabs::-webkit-scrollbar{ display:none; }
-  nav.tabs button{
-    flex:1; min-width:74px; background:none; border:none; color:var(--paper-dim);
-    font-family:'Bebas Neue', sans-serif; font-size:14px; letter-spacing:.05em; text-transform:uppercase;
-    padding:14px 4px 11px 4px; cursor:pointer; border-bottom:2px solid transparent;
-    transition:color .15s ease, border-color .15s ease; white-space:nowrap;
-    overflow:hidden; text-overflow:ellipsis;
-  }
-  nav.tabs button.active{ color:var(--paper); border-color:var(--brass); }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f9fafb;
+            color: #1f2937;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-  main{ padding:20px 18px 60px 18px; flex:1; }
-  section{ display:none; }
-  section.active{ display:block; }
+        input, select, button, textarea {
+            font-family: inherit;
+            font-size: 16px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
 
-  .narrativa{
-    font-family:'Inter', sans-serif; font-weight:500; font-size:15px; line-height:1.6;
-    color:var(--paper); padding:16px 4px 20px 4px; border-bottom:1px solid var(--line); margin-bottom:18px;
-  }
-  .narrativa .num{ font-family:'Bebas Neue', sans-serif; font-size:1.25em; letter-spacing:.03em; color:var(--brass); }
-  .narrativa .num.pend{ color:var(--terracotta); }
-  .narrativa .num.debe{ color:var(--oxide); }
+        input, select, textarea {
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            padding: 10px;
+            width: 100%;
+        }
 
-  .btn{
-    font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:.03em;
-    border-radius:9px; padding:11px 16px; border:1px solid transparent; cursor:pointer;
-  }
-  .btn-brass{ background:var(--brass); color:var(--ink); }
-  .btn-ghost{ background:transparent; color:var(--paper); border-color:var(--line); }
-  .btn-block{ width:100%; }
-  .btn-sm{ padding:8px 12px; font-size:13px; border-radius:7px; }
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
 
-  .add-row{ display:flex; justify-content:flex-end; margin-bottom:16px; }
+        button:active {
+            transform: scale(0.98);
+        }
 
-  .filmstrip{ position:relative; }
-  .frame{
-    position:relative; background:var(--ink-2); border:1px solid var(--line); border-radius:4px;
-    margin-bottom:14px; padding:16px 16px 16px 22px; cursor:pointer; overflow:hidden;
-  }
-  .frame::before, .frame::after{
-    content:''; position:absolute; left:0; top:0; bottom:0; width:8px;
-    background-image: radial-gradient(circle, var(--ink) 2.2px, transparent 2.3px);
-    background-size: 8px 14px; background-position: 0 4px; opacity:.9;
-  }
-  .frame::after{ left:auto; right:0; }
-  .frame-top{ display:flex; align-items:center; gap:12px; }
+        .container {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 80px;
+        }
 
-  .iris{
-    width:44px; height:44px; border-radius:50%; flex:none;
-    background:
-      conic-gradient(from 0deg,
-        var(--brass) 0 40deg, transparent 40deg 45deg,
-        var(--brass) 45deg 85deg, transparent 85deg 90deg,
-        var(--brass) 90deg 130deg, transparent 130deg 135deg,
-        var(--brass) 135deg 175deg, transparent 175deg 180deg,
-        var(--brass) 180deg 220deg, transparent 220deg 225deg,
-        var(--brass) 225deg 265deg, transparent 265deg 270deg,
-        var(--brass) 270deg 310deg, transparent 310deg 315deg,
-        var(--brass) 315deg 355deg, transparent 355deg 360deg);
-    display:flex; align-items:center; justify-content:center; position:relative;
-  }
-  .iris.oxide{
-    background:
-      conic-gradient(from 0deg,
-        var(--oxide) 0 40deg, transparent 40deg 45deg,
-        var(--oxide) 45deg 85deg, transparent 85deg 90deg,
-        var(--oxide) 90deg 130deg, transparent 130deg 135deg,
-        var(--oxide) 135deg 175deg, transparent 175deg 180deg,
-        var(--oxide) 180deg 220deg, transparent 220deg 225deg,
-        var(--oxide) 225deg 265deg, transparent 265deg 270deg,
-        var(--oxide) 270deg 310deg, transparent 310deg 315deg,
-        var(--oxide) 315deg 355deg, transparent 355deg 360deg);
-  }
-  .iris span{
-    position:relative; z-index:2; width:26px; height:26px; border-radius:50%; background:var(--ink-2);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Bebas Neue', sans-serif; font-weight:400; font-size:15px; color:var(--paper);
-  }
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 20px 12px;
+            text-align: center;
+            padding-top: max(20px, env(safe-area-inset-top));
+            flex-shrink: 0;
+        }
 
-  .frame-id{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.08em; color:var(--paper-dim); margin-bottom:2px; }
-  .frame-name{ font-family:'Bebas Neue', sans-serif; font-weight:400; font-size:22px; letter-spacing:.02em; }
-  .frame-meta{ font-size:12px; color:var(--paper-dim); margin-top:2px; }
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
 
-  .frame-right{ margin-left:auto; text-align:right; }
-  .estado-pill{
-    font-family:'Bebas Neue', sans-serif; font-size:13px; letter-spacing:.03em;
-    padding:4px 10px; border-radius:20px; display:inline-block; white-space:nowrap;
-  }
-  .estado-al-dia{ background:var(--moss-bg); color:var(--moss); }
-  .estado-pendiente{ background:var(--terracotta-bg); color:var(--terracotta); }
-  .estado-debe{ background:var(--oxide-bg); color:var(--oxide); }
+        .header p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
 
-  .frame-detail{ margin-top:14px; padding-top:14px; border-top:1px dashed var(--line); display:none; }
-  .frame.open .frame-detail{ display:block; }
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            flex-shrink: 0;
+        }
 
-  .detail-row{
-    display:flex; justify-content:space-between; align-items:center;
-    padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;
-  }
-  .detail-row:last-of-type{ border-bottom:none; }
-  .detail-row .concepto{ font-weight:600; }
-  .detail-row .fecha{ font-size:11px; color:var(--paper-dim); font-family:'IBM Plex Mono',monospace; }
-  .detail-row .monto{ font-family:'IBM Plex Mono', monospace; font-weight:600; }
-  .monto.pagado{ color:var(--moss); }
-  .monto.pendiente{ color:var(--terracotta); }
-  .monto.debe{ color:var(--oxide); }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 13px;
+            background: white;
+            color: #6b7280;
+            border: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
 
-  .notes{ margin-top:12px; font-size:12.5px; color:var(--paper-dim); font-style:italic; }
+        .tab-btn.active {
+            background: #1f2937;
+            color: white;
+            border-bottom-color: #3b82f6;
+        }
 
-  .mini-form{ margin-top:14px; display:grid; gap:8px; }
-  .mini-form input, .mini-form select{
-    width:100%; background:var(--ink); border:1px solid var(--line); color:var(--paper);
-    padding:10px 12px; border-radius:8px; font-size:13.5px; font-family:'Inter',sans-serif;
-  }
-  .mini-form-row{ display:flex; gap:8px; }
+        .content {
+            padding: 12px;
+            display: none;
+        }
 
-  .cobro-row{
-    background:var(--ink-2); border:1px solid var(--line); border-radius:10px;
-    padding:14px 16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:10px;
-  }
-  .cobro-left .cliente{ font-family:'Bebas Neue', sans-serif; font-weight:400; font-size:19px; letter-spacing:.02em; }
-  .cobro-left .concepto{ font-size:12.5px; color:var(--paper-dim); margin-top:2px; }
-  .cobro-mid{ text-align:center; }
-  .timecode{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:13px; padding:4px 9px; border-radius:6px; }
-  .tc-fresh{ background:var(--brass-soft); color:var(--brass); }
-  .tc-warn{ background:var(--terracotta-bg); color:var(--terracotta); }
-  .tc-hot{ background:var(--oxide-bg); color:var(--oxide); }
-  .cobro-right{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
-  .cobro-monto{ font-family:'Bebas Neue', sans-serif; font-weight:400; font-size:19px; letter-spacing:.02em; }
-  .cobrado-link{
-    font-family:'Inter',sans-serif; font-size:11px; color:var(--paper-dim);
-    background:none; border:none; cursor:pointer; text-decoration:underline; padding:0;
-  }
+        .content.active {
+            display: block;
+        }
 
-  .section-title{
-    font-family:'Bebas Neue', sans-serif; font-size:16px; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--paper-dim); margin:22px 2px 10px 2px;
-  }
-  .section-title:first-child{ margin-top:0; }
+        .cards {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
 
-  .stat-grid{ display:flex; gap:8px; margin-bottom:22px; flex-wrap:wrap; }
-  .stat{
-    flex:1; min-width:100px; background:var(--ink-2); border:1px solid var(--line); border-radius:10px;
-    padding:14px; text-align:center;
-  }
-  .stat .label{ font-family:'IBM Plex Mono', monospace; font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--paper-dim); margin-bottom:6px; }
-  .stat .value{ font-family:'Anton', sans-serif; font-weight:400; font-size:18px; }
-  .value.moss{ color:var(--moss); } .value.brass{ color:var(--brass); }
-  .value.terracotta{ color:var(--terracotta); } .value.oxide{ color:var(--oxide); }
+        .card {
+            flex: 1;
+            background: white;
+            padding: 16px 12px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
 
-  .breakdown-title{
-    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
-    color:var(--paper-dim); margin:0 0 10px 2px;
-  }
-  .empty{ color:var(--paper-dim); font-size:13px; text-align:center; padding:30px 0; font-style:italic; }
+        .card-label {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
 
-  .equipo-row{
-    background:var(--ink-2); border:1px solid var(--line); border-radius:10px;
-    padding:13px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;
-  }
-  .equipo-row .nombre{ font-weight:600; font-size:14.5px; }
-  .equipo-row .fecha{ font-size:11px; color:var(--paper-dim); margin-top:2px; }
-  .equipo-row .monto{ font-family:'Bebas Neue', sans-serif; font-size:18px; letter-spacing:.02em; }
-</style>
+        .card-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .green { color: #10b981; }
+        .red { color: #ef4444; }
+        .amber { color: #f59e0b; }
+
+        .months {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+        }
+
+        .month-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #1f2937;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .month-btn.active {
+            background: #3b82f6;
+            color: white;
+            border: none;
+        }
+
+        .form {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .form.show {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1f2937;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
+            width: 100%;
+        }
+
+        .btn-add {
+            background: #3b82f6;
+            color: white;
+            width: 100%;
+            margin-bottom: 16px;
+            padding: 14px;
+            font-size: 16px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-group button {
+            flex: 1;
+        }
+
+        .transaction {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .transaction-meta {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 2px;
+        }
+
+        .transaction-date {
+            font-size: 11px;
+            color: #d1d5db;
+        }
+
+        .transaction-amount {
+            text-align: right;
+            margin-right: 12px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-small {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .btn-delete {
+            color: #ef4444;
+        }
+
+        .supplier {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .supplier.pagado {
+            opacity: 0.6;
+        }
+
+        .supplier-info {
+            flex: 1;
+        }
+
+        .supplier-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .supplier-type {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 16px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .tipo-buttons, .status-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tipo-btn, .status-btn {
+            padding: 10px;
+            border: 2px solid #d1d5db;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+
+        .tipo-btn.active, .status-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .resumen-card {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .resumen-label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .resumen-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .install-prompt {
+            background: #dbeafe;
+            border: 1px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        .install-prompt strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        @supports (padding: max(0px)) {
+            body {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        .install-prompt button {
+            width: 100%;
+            background: #0ea5e9;
+            color: white;
+            margin-top: 8px;
+        }
+
+        @media (max-height: 600px) {
+            .header {
+                padding: 12px;
+            }
+            
+            .card-value {
+                font-size: 18px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="eyebrow"><span class="dot"></span> Mis Finanzas</div>
-    <h1>Todo tu estudio</h1>
-    <p class="sub">Quién te debe, a quién le debes, y cuánto tienes invertido.</p>
-  </header>
+    <div class="header">
+        <h1>Mis Finanzas</h1>
+        <p>Trackea ingresos, deudas y pagos</p>
+    </div>
 
-  <nav class="tabs">
-    <button class="tab-btn active" data-tab="clientes">Clientes</button>
-    <button class="tab-btn" data-tab="colaboradores">Equipo</button>
-    <button class="tab-btn" data-tab="cobros">Pagos</button>
-    <button class="tab-btn" data-tab="equipo">Gear</button>
-    <button class="tab-btn" data-tab="resumen">Resumen</button>
-  </nav>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('ingresos')">Ingresos</button>
+        <button class="tab-btn" onclick="switchTab('proveedores')">Proveedores</button>
+        <button class="tab-btn" onclick="switchTab('resumen')">Resumen</button>
+    </div>
 
-  <main>
-    <section id="tab-clientes" class="active">
-      <div class="narrativa" id="narrativa-clientes"></div>
-      <div class="add-row"><button class="btn btn-brass btn-sm" id="btn-nuevo-cliente">+ Nuevo cliente</button></div>
-      <div class="mini-form" id="form-nuevo-cliente" style="display:none; margin-bottom:18px;">
-        <input type="text" id="nc-nombre" placeholder="Nombre del cliente">
-        <input type="text" id="nc-nota" placeholder="Nota (opcional): estilo, preferencias...">
-        <div class="mini-form-row">
-          <button class="btn btn-brass btn-block btn-sm" onclick="guardarCliente()">Guardar</button>
-          <button class="btn btn-ghost btn-block btn-sm" onclick="toggleFormCliente(false)">Cancelar</button>
+    <div class="container">
+        <!-- TAB INGRESOS -->
+        <div id="ingresos" class="content active">
+            <div class="install-prompt" id="install-prompt">
+                <strong>📲 Instala “Mis Finanzas”</strong>
+                <p id="install-help" style="font-size: 12px; margin-top: 6px; color: #0369a1;">
+                    Acceso directo desde tu pantalla de inicio.
+                </p>
+                <button id="install-btn" onclick="promptInstall()" style="background: #0ea5e9; color: white;">Instalar</button>
+            </div>
+
+            <button class="btn-add" onclick="openFormIngresos()">+ Nuevo Ingreso/Deuda</button>
+
+            <div class="form" id="form-ingresos">
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <div class="tipo-buttons" id="tipo-buttons"></div>
+                </div>
+                <div class="form-group">
+                    <label for="ing-date">Fecha</label>
+                    <input type="date" id="ing-date">
+                </div>
+                <div class="form-group">
+                    <label for="ing-concept">Concepto</label>
+                    <input type="text" id="ing-concept" placeholder="ej: Pago por artículo">
+                </div>
+                <div class="form-group">
+                    <label for="ing-amount">Monto (S/)</label>
+                    <input type="number" id="ing-amount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="ing-source">Fuente</label>
+                    <input type="text" id="ing-source" placeholder="ej: Client, Venta directa">
+                </div>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="addTransaction()">Guardar</button>
+                    <button class="btn-secondary" onclick="closeFormIngresos()">Cancelar</button>
+                </div>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <div class="card-label">Este Mes</div>
+                    <div class="card-value green" id="ingresos-total">S/ 0.00</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Deudas</div>
+                    <div class="card-value red" id="deudas-total">S/ 0.00</div>
+                </div>
+            </div>
+
+            <div class="months" id="months-container"></div>
+
+            <div id="transactions-list"></div>
         </div>
-      </div>
-      <div class="filmstrip" id="lista-clientes"></div>
-    </section>
 
-    <section id="tab-colaboradores">
-      <div class="narrativa" id="narrativa-colaboradores"></div>
-      <div class="add-row"><button class="btn btn-brass btn-sm" id="btn-nuevo-colab">+ Nuevo colaborador</button></div>
-      <div class="mini-form" id="form-nuevo-colab" style="display:none; margin-bottom:18px;">
-        <input type="text" id="col-nombre" placeholder="Nombre">
-        <input type="text" id="col-rol" placeholder="Rol (ej. Editor, Asistente, Luminotécnico, Diseñador)">
-        <div class="mini-form-row">
-          <button class="btn btn-brass btn-block btn-sm" onclick="guardarColaborador()">Guardar</button>
-          <button class="btn btn-ghost btn-block btn-sm" onclick="toggleFormColab(false)">Cancelar</button>
+        <!-- TAB PROVEEDORES -->
+        <div id="proveedores" class="content">
+            <button class="btn-add" onclick="openFormProveedores()">+ Nuevo Proveedor</button>
+
+            <div class="form" id="form-proveedores">
+                <div class="form-group">
+                    <label for="prov-name">Nombre</label>
+                    <input type="text" id="prov-name" placeholder="ej: Editor, Asistente">
+                </div>
+                <div class="form-group">
+                    <label for="prov-amount">Monto (S/)</label>
+                    <input type="number" id="prov-amount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="prov-type">Tipo</label>
+                    <select id="prov-type">
+                        <option>Editor</option>
+                        <option>Asistente</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <div class="status-buttons" id="status-buttons"></div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="addSupplier()">Guardar</button>
+                    <button class="btn-secondary" onclick="closeFormProveedores()">Cancelar</button>
+                </div>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <div class="card-label">Pendiente</div>
+                    <div class="card-value red" id="pendiente-total">S/ 0.00</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Pagado</div>
+                    <div class="card-value green" id="pagado-total">S/ 0.00</div>
+                </div>
+            </div>
+
+            <div id="suppliers-list"></div>
         </div>
-      </div>
-      <div class="filmstrip" id="lista-colaboradores"></div>
-    </section>
 
-    <section id="tab-cobros">
-      <div class="narrativa" id="narrativa-cobros"></div>
-      <div class="section-title">Te deben</div>
-      <div id="lista-cobros"></div>
-      <div class="section-title">Debes</div>
-      <div id="lista-pagos"></div>
-    </section>
+        <!-- TAB RESUMEN -->
+        <div id="resumen" class="content">
+            <h2 style="padding: 16px 0 8px; font-size: 16px;">Resumen General</h2>
+            
+            <div class="resumen-grid">
+                <div class="resumen-card">
+                    <div class="resumen-label">Total Ingresos</div>
+                    <div class="resumen-value green" id="res-ingresos">S/ 0.00</div>
+                </div>
+                <div class="resumen-card">
+                    <div class="resumen-label">Total Deudas</div>
+                    <div class="resumen-value red" id="res-deudas">S/ 0.00</div>
+                </div>
+                <div class="resumen-card">
+                    <div class="resumen-label">A Pagar (Pendiente)</div>
+                    <div class="resumen-value red" id="res-pendiente">S/ 0.00</div>
+                </div>
+                <div class="resumen-card">
+                    <div class="resumen-label">Ya Pagado</div>
+                    <div class="resumen-value green" id="res-pagado">S/ 0.00</div>
+                </div>
+            </div>
 
-    <section id="tab-equipo">
-      <div class="narrativa" id="narrativa-equipo"></div>
-      <div class="add-row"><button class="btn btn-brass btn-sm" id="btn-nuevo-equipo">+ Nuevo equipo</button></div>
-      <div class="mini-form" id="form-nuevo-equipo" style="display:none; margin-bottom:18px;">
-        <input type="text" id="eq-nombre" placeholder="Nombre (ej. Sony A7IV)">
-        <select id="eq-categoria">
-          <option value="Cámaras">Cámaras</option>
-          <option value="Lentes">Lentes</option>
-          <option value="Iluminación">Iluminación</option>
-          <option value="Audio">Audio</option>
-          <option value="Otros">Otros</option>
-        </select>
-        <input type="number" id="eq-monto" placeholder="Monto invertido (S/)">
-        <div class="mini-form-row">
-          <button class="btn btn-brass btn-block btn-sm" onclick="guardarEquipo()">Guardar</button>
-          <button class="btn btn-ghost btn-block btn-sm" onclick="toggleFormEquipo(false)">Cancelar</button>
+            <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div>
+                        <div style="font-size: 12px; color: #6b7280; font-weight: 600;">BALANCE NETO</div>
+                        <div style="font-size: 28px; font-weight: 700; margin-top: 4px;" id="res-balance">S/ 0.00</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">
+                            <span>Ingresos - Deudas:</span><br>
+                            <strong id="res-balance-info">S/ 0.00</strong>
+                        </div>
+                        <div style="font-size: 12px; color: #6b7280;">
+                            <span>Menos pendiente:</span><br>
+                            <strong id="res-pendiente-info">S/ 0.00</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 16px; padding: 16px; background: #f3f4f6; border-radius: 12px; font-size: 12px; color: #6b7280; text-align: center;">
+                <p>💾 Tus datos se guardan automáticamente en tu dispositivo</p>
+                <p style="margin-top: 4px; font-size: 11px;">Funciona sin conexión a internet</p>
+            </div>
         </div>
-      </div>
-      <div id="lista-equipo"></div>
-    </section>
+    </div>
 
-    <section id="tab-resumen">
-      <div class="narrativa" id="narrativa-resumen"></div>
-      <div class="stat-grid">
-        <div class="stat"><div class="label">Cobrado / mes</div><div class="value moss" id="st-cobrado">S/ 0</div></div>
-        <div class="stat"><div class="label">Te deben</div><div class="value terracotta" id="st-pendiente">S/ 0</div></div>
-        <div class="stat"><div class="label">Debes</div><div class="value oxide" id="st-debes">S/ 0</div></div>
-        <div class="stat"><div class="label">En equipo</div><div class="value brass" id="st-equipo">S/ 0</div></div>
-      </div>
-      <div class="breakdown-title">Por cliente</div>
-      <div id="lista-breakdown"></div>
-    </section>
-  </main>
-</div>
+    <script>
+        let transactions = [];
+        let suppliers = [];
+        let currentMonth = new Date().toISOString().slice(0, 7);
+        let currentTipo = 'Ingreso';
+        let currentStatus = 'Pendiente';
+        let editingId = null;
+        let deferredPrompt = null;
 
-<script>
-const STORAGE_KEY = 'estudio_app_completa_v1';
+        function init() {
+            loadTransactions();
+            loadSuppliers();
+            createTipoButtons();
+            createStatusButtons();
+            document.getElementById('ing-date').valueAsDate = new Date();
+            render();
 
-function seed(){
-  return {
-    clientes: [
-      { id: 1, nombre: 'Camila', nota: 'Prefiere edición cálida, tono cinematográfico.',
-        proyectos: [ { id: 1, concepto: 'Jacinta', monto: 2500, estado: 'pendiente', fecha: '2026-08-26' } ] },
-      { id: 2, nombre: 'Martín', nota: '',
-        proyectos: [ { id: 2, concepto: 'Hipermercado Cerámico', monto: 1500, estado: 'pagado', fecha: '2026-08-25' } ] }
-    ],
-    colaboradores: [
-      { id: 1, nombre: 'Renzo', rol: 'Editor de video',
-        pagos: [ { id: 1, concepto: 'Edición boda Sofía', monto: 800, estado: 'pendiente', fecha: '2026-08-20' } ] },
-      { id: 2, nombre: 'Valeria', rol: 'Asistente de cámara',
-        pagos: [ { id: 2, concepto: 'Jornada Hipermercado Cerámico', monto: 300, estado: 'pagado', fecha: '2026-08-25' } ] }
-    ],
-    equipo: [
-      { id: 1, nombre: 'Sony A7 IV', categoria: 'Cámaras', monto: 8500, fecha: '2025-11-02' },
-      { id: 2, nombre: 'Lente 24-70mm f/2.8', categoria: 'Lentes', monto: 3200, fecha: '2025-11-15' },
-      { id: 3, nombre: 'Kit de luces Aputure', categoria: 'Iluminación', monto: 2600, fecha: '2026-02-10' }
-    ]
-  };
-}
+            // PWA installation
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 
-let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || seed();
-let clientes = data.clientes, colaboradores = data.colaboradores, equipo = data.equipo;
+            if (!isStandalone) {
+                const installPrompt = document.getElementById('install-prompt');
+                const installHelp = document.getElementById('install-help');
+                const installBtn = document.getElementById('install-btn');
 
-let nextClienteId = Math.max(0, ...clientes.map(c=>c.id)) + 1;
-let nextProyectoId = Math.max(0, ...clientes.flatMap(c=>c.proyectos.map(p=>p.id))) + 1;
-let nextColabId = Math.max(0, ...colaboradores.map(c=>c.id)) + 1;
-let nextPagoId = Math.max(0, ...colaboradores.flatMap(c=>c.pagos.map(p=>p.id))) + 1;
-let nextEquipoId = Math.max(0, ...equipo.map(e=>e.id)) + 1;
+                if (isIOS) {
+                    installPrompt.classList.add('show');
+                    installHelp.innerHTML = 'En Safari: toca <b>Compartir</b> 📤 → <b>Añadir a pantalla de inicio</b> → <b>Añadir</b>.';
+                    installBtn.textContent = 'Cómo instalar en iPhone';
+                }
+            }
 
-function guardar(){ localStorage.setItem(STORAGE_KEY, JSON.stringify({ clientes, colaboradores, equipo })); }
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                document.getElementById('install-prompt').classList.add('show');
+                document.getElementById('install-help').textContent = 'Añade la app a tu pantalla de inicio para abrirla como una aplicación.';
+                document.getElementById('install-btn').textContent = 'Instalar ahora';
+            });
 
-const fmt = n => 'S/ ' + n.toLocaleString('es-PE', {minimumFractionDigits:0, maximumFractionDigits:0});
-const hoy = () => new Date().toISOString().slice(0,10);
-function diasDesde(fechaISO){
-  const ms = new Date(hoy()) - new Date(fechaISO);
-  return Math.max(0, Math.floor(ms / 86400000));
-}
-function mesActual(){ return hoy().slice(0,7); }
-function iniciales(nombre){ return nombre.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+            window.addEventListener('appinstalled', () => {
+                deferredPrompt = null;
+                document.getElementById('install-prompt').classList.remove('show');
+            });
 
-function totalPendiente(c){ return c.proyectos.filter(p=>p.estado==='pendiente').reduce((s,p)=>s+p.monto,0); }
-function totalFacturado(c){ return c.proyectos.reduce((s,p)=>s+p.monto,0); }
-function todosLosPendientes(){
-  const out = [];
-  clientes.forEach(c => c.proyectos.forEach(p => { if(p.estado==='pendiente') out.push({ cliente: c, proyecto: p }); }));
-  return out.sort((a,b)=> diasDesde(b.proyecto.fecha) - diasDesde(a.proyecto.fecha));
-}
+            // Service Worker: enables reliable PWA behavior and offline caching.
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./service-worker.js').catch((err) => {
+                    console.warn('Service Worker no registrado:', err);
+                });
+            }
+        }
 
-function totalDebo(c){ return c.pagos.filter(p=>p.estado==='pendiente').reduce((s,p)=>s+p.monto,0); }
-function totalPagadoA(c){ return c.pagos.reduce((s,p)=>s+p.monto,0); }
-function todosLosPagosPendientes(){
-  const out = [];
-  colaboradores.forEach(c => c.pagos.forEach(p => { if(p.estado==='pendiente') out.push({ colaborador: c, pago: p }); }));
-  return out.sort((a,b)=> diasDesde(b.pago.fecha) - diasDesde(a.pago.fecha));
-}
+        function promptInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        deferredPrompt = null;
+                    }
+                });
+                return;
+            }
 
-function totalEquipoInvertido(){ return equipo.reduce((s,e)=>s+e.monto,0); }
+            const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+            if (isIOS) {
+                alert('Para instalar Mis Finanzas en tu iPhone:\n\n1. Pulsa Compartir 📤 en Safari.\n2. Elige “Añadir a pantalla de inicio”.\n3. Pulsa “Añadir”.\n\nDespués aparecerá el icono de Mis Finanzas en tu pantalla de inicio.');
+            }
+        }
 
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('main > section').forEach(s=>s.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
-    renderAll();
-  });
-});
+        function createTipoButtons() {
+            const container = document.getElementById('tipo-buttons');
+            const tipos = ['Ingreso', 'Deuda'];
+            container.innerHTML = '';
+            tipos.forEach(tipo => {
+                const btn = document.createElement('button');
+                btn.className = `tipo-btn ${tipo === currentTipo ? 'active' : ''}`;
+                btn.textContent = tipo;
+                btn.onclick = () => setTipo(tipo);
+                container.appendChild(btn);
+            });
+        }
 
-function toggleFrame(id){ document.getElementById('frame-'+id).classList.toggle('open'); }
-window.toggleFrame = toggleFrame;
-function toggleFrameColab(id){ document.getElementById('frame-col-'+id).classList.toggle('open'); }
-window.toggleFrameColab = toggleFrameColab;
+        function createStatusButtons() {
+            const container = document.getElementById('status-buttons');
+            const statuses = ['Pendiente', 'Pagado'];
+            container.innerHTML = '';
+            statuses.forEach(status => {
+                const btn = document.createElement('button');
+                btn.className = `status-btn ${status === currentStatus ? 'active' : ''}`;
+                btn.textContent = status;
+                btn.onclick = () => setStatus(status);
+                container.appendChild(btn);
+            });
+        }
 
-function toggleFormCliente(show){ document.getElementById('form-nuevo-cliente').style.display = show ? 'grid' : 'none'; }
-document.getElementById('btn-nuevo-cliente').addEventListener('click', ()=>toggleFormCliente(true));
+        function setTipo(tipo) {
+            currentTipo = tipo;
+            createTipoButtons();
+        }
 
-function guardarCliente(){
-  const nombre = document.getElementById('nc-nombre').value.trim();
-  const nota = document.getElementById('nc-nota').value.trim();
-  if(!nombre){ alert('Ponle un nombre al cliente.'); return; }
-  clientes.push({ id: nextClienteId++, nombre, nota, proyectos: [] });
-  guardar();
-  document.getElementById('nc-nombre').value=''; document.getElementById('nc-nota').value='';
-  toggleFormCliente(false);
-  renderAll();
-}
-window.guardarCliente = guardarCliente;
+        function setStatus(status) {
+            currentStatus = status;
+            createStatusButtons();
+        }
 
-function mostrarFormProyecto(clienteId){
-  const el = document.getElementById('form-proy-'+clienteId);
-  el.style.display = el.style.display === 'grid' ? 'none' : 'grid';
-}
-window.mostrarFormProyecto = mostrarFormProyecto;
+        function switchTab(tab) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
 
-function guardarProyecto(clienteId){
-  const c = clientes.find(cl=>cl.id===clienteId);
-  const concepto = document.getElementById(`pr-concepto-${clienteId}`).value.trim();
-  const monto = parseFloat(document.getElementById(`pr-monto-${clienteId}`).value);
-  const estado = document.getElementById(`pr-estado-${clienteId}`).value;
-  if(!concepto || !monto){ alert('Completa el concepto y el monto.'); return; }
-  c.proyectos.unshift({ id: nextProyectoId++, concepto, monto, estado, fecha: hoy() });
-  guardar(); renderAll();
-}
-window.guardarProyecto = guardarProyecto;
+        function loadTransactions() {
+            const saved = localStorage.getItem('transactions');
+            transactions = saved ? JSON.parse(saved) : [];
+        }
 
-function marcarCobrado(clienteId, proyectoId){
-  const c = clientes.find(cl=>cl.id===clienteId);
-  const p = c.proyectos.find(pr=>pr.id===proyectoId);
-  p.estado = 'pagado'; p.fecha = hoy();
-  guardar(); renderAll();
-}
-window.marcarCobrado = marcarCobrado;
+        function loadSuppliers() {
+            const saved = localStorage.getItem('suppliers');
+            suppliers = saved ? JSON.parse(saved) : [];
+        }
 
-function toggleFormColab(show){ document.getElementById('form-nuevo-colab').style.display = show ? 'grid' : 'none'; }
-document.getElementById('btn-nuevo-colab').addEventListener('click', ()=>toggleFormColab(true));
+        function openFormIngresos() {
+            document.querySelectorAll('.btn-add')[0].style.display = 'none';
+            document.getElementById('form-ingresos').classList.add('show');
+        }
 
-function guardarColaborador(){
-  const nombre = document.getElementById('col-nombre').value.trim();
-  const rol = document.getElementById('col-rol').value.trim();
-  if(!nombre){ alert('Ponle un nombre al colaborador.'); return; }
-  colaboradores.push({ id: nextColabId++, nombre, rol, pagos: [] });
-  guardar();
-  document.getElementById('col-nombre').value=''; document.getElementById('col-rol').value='';
-  toggleFormColab(false);
-  renderAll();
-}
-window.guardarColaborador = guardarColaborador;
+        function closeFormIngresos() {
+            document.getElementById('form-ingresos').classList.remove('show');
+            document.querySelectorAll('.btn-add')[0].style.display = 'block';
+            clearFormIngresos();
+        }
 
-function mostrarFormPago(colabId){
-  const el = document.getElementById('form-pago-'+colabId);
-  el.style.display = el.style.display === 'grid' ? 'none' : 'grid';
-}
-window.mostrarFormPago = mostrarFormPago;
+        function openFormProveedores() {
+            document.querySelectorAll('.btn-add')[1].style.display = 'none';
+            document.getElementById('form-proveedores').classList.add('show');
+        }
 
-function guardarPago(colabId){
-  const c = colaboradores.find(cl=>cl.id===colabId);
-  const concepto = document.getElementById(`pg-concepto-${colabId}`).value.trim();
-  const monto = parseFloat(document.getElementById(`pg-monto-${colabId}`).value);
-  const estado = document.getElementById(`pg-estado-${colabId}`).value;
-  if(!concepto || !monto){ alert('Completa el concepto y el monto.'); return; }
-  c.pagos.unshift({ id: nextPagoId++, concepto, monto, estado, fecha: hoy() });
-  guardar(); renderAll();
-}
-window.guardarPago = guardarPago;
+        function closeFormProveedores() {
+            document.getElementById('form-proveedores').classList.remove('show');
+            document.querySelectorAll('.btn-add')[1].style.display = 'block';
+            clearFormProveedores();
+        }
 
-function marcarPagado(colabId, pagoId){
-  const c = colaboradores.find(cl=>cl.id===colabId);
-  const p = c.pagos.find(pg=>pg.id===pagoId);
-  p.estado = 'pagado'; p.fecha = hoy();
-  guardar(); renderAll();
-}
-window.marcarPagado = marcarPagado;
+        function clearFormIngresos() {
+            document.getElementById('ing-date').valueAsDate = new Date();
+            document.getElementById('ing-concept').value = '';
+            document.getElementById('ing-amount').value = '';
+            document.getElementById('ing-source').value = '';
+            currentTipo = 'Ingreso';
+            editingId = null;
+            setTipo('Ingreso');
+        }
 
-function toggleFormEquipo(show){ document.getElementById('form-nuevo-equipo').style.display = show ? 'grid' : 'none'; }
-document.getElementById('btn-nuevo-equipo').addEventListener('click', ()=>toggleFormEquipo(true));
+        function clearFormProveedores() {
+            document.getElementById('prov-name').value = '';
+            document.getElementById('prov-amount').value = '';
+            document.getElementById('prov-type').value = 'Editor';
+            currentStatus = 'Pendiente';
+            editingId = null;
+            setStatus('Pendiente');
+        }
 
-function guardarEquipo(){
-  const nombre = document.getElementById('eq-nombre').value.trim();
-  const categoria = document.getElementById('eq-categoria').value;
-  const monto = parseFloat(document.getElementById('eq-monto').value);
-  if(!nombre || !monto){ alert('Completa el nombre y el monto.'); return; }
-  equipo.unshift({ id: nextEquipoId++, nombre, categoria, monto, fecha: hoy() });
-  guardar();
-  document.getElementById('eq-nombre').value=''; document.getElementById('eq-monto').value='';
-  toggleFormEquipo(false);
-  renderAll();
-}
-window.guardarEquipo = guardarEquipo;
+        function addTransaction() {
+            const date = document.getElementById('ing-date').value;
+            const concept = document.getElementById('ing-concept').value;
+            const amount = parseFloat(document.getElementById('ing-amount').value);
+            const source = document.getElementById('ing-source').value;
 
-function renderClientes(){
-  const cont = document.getElementById('lista-clientes');
-  cont.innerHTML = '';
-  const totalPend = clientes.reduce((s,c)=>s+totalPendiente(c),0);
-  const deudores = clientes.filter(c=>totalPendiente(c)>0);
-  const nar = document.getElementById('narrativa-clientes');
-  if(clientes.length===0){
-    nar.innerHTML = 'Todavía no registras clientes. Añade el primero para empezar a ver quién te debe qué.';
-  } else if(deudores.length===0){
-    nar.innerHTML = `Tienes <span class="num">${clientes.length}</span> cliente${clientes.length===1?'':'s'} registrado${clientes.length===1?'':'s'} y nadie te debe nada ahora mismo. Todo al día.`;
-  } else {
-    const nombres = deudores.map(c=>c.nombre).join(' y ');
-    nar.innerHTML = `${nombres} te debe${deudores.length===1?'':'n'} en total <span class="num pend">${fmt(totalPend)}</span>. El resto está al día.`;
-  }
-  if(clientes.length===0){ cont.innerHTML = '<div class="empty">Aquí aparecerán tus clientes, como fotogramas en una tira de negativos.</div>'; return; }
+            if (!concept || !amount) {
+                alert('Completa todos los campos');
+                return;
+            }
 
-  clientes.forEach((c, idx)=>{
-    const pend = totalPendiente(c);
-    const facturado = totalFacturado(c);
-    const frame = document.createElement('div');
-    frame.className = 'frame'; frame.id = 'frame-'+c.id;
-    frame.innerHTML = `
-      <div class="frame-top" onclick="toggleFrame(${c.id})">
-        <div class="iris"><span>${iniciales(c.nombre)}</span></div>
-        <div>
-          <div class="frame-id">N.${String(idx+1).padStart(2,'0')}</div>
-          <div class="frame-name">${c.nombre}</div>
-          <div class="frame-meta">${c.proyectos.length} proyecto${c.proyectos.length===1?'':'s'} · facturado ${fmt(facturado)}</div>
-        </div>
-        <div class="frame-right">
-          <span class="estado-pill ${pend>0 ? 'estado-pendiente' : 'estado-al-dia'}">${pend>0 ? 'debe '+fmt(pend) : 'al día'}</span>
-        </div>
-      </div>
-      <div class="frame-detail">
-        ${c.nota ? `<div class="notes">"${c.nota}"</div>` : ''}
-        ${c.proyectos.length===0 ? '<div class="empty" style="padding:14px 0;">Sin proyectos todavía.</div>' :
-          c.proyectos.map(p => `
-            <div class="detail-row">
-              <div><div class="concepto">${p.concepto}</div><div class="fecha">${p.fecha}</div></div>
-              <div style="text-align:right;">
-                <div class="monto ${p.estado}">${p.estado==='pagado' ? '+' : ''} ${fmt(p.monto)}</div>
-                ${p.estado==='pendiente' ? `<button class="cobrado-link" onclick="marcarCobrado(${c.id},${p.id})">marcar cobrado</button>` : ''}
-              </div>
-            </div>`).join('')}
-        <div class="mini-form-row" style="margin-top:12px;">
-          <button class="btn btn-ghost btn-sm btn-block" onclick="mostrarFormProyecto(${c.id})">+ Nuevo proyecto</button>
-        </div>
-        <div class="mini-form" id="form-proy-${c.id}" style="display:none;">
-          <input type="text" id="pr-concepto-${c.id}" placeholder="Concepto (ej. Boda Sofía)">
-          <div class="mini-form-row">
-            <input type="number" id="pr-monto-${c.id}" placeholder="Monto (S/)">
-            <select id="pr-estado-${c.id}"><option value="pendiente">Pendiente</option><option value="pagado">Ya pagado</option></select>
-          </div>
-          <button class="btn btn-brass btn-sm" onclick="guardarProyecto(${c.id})">Guardar proyecto</button>
-        </div>
-      </div>`;
-    cont.appendChild(frame);
-  });
-}
+            if (editingId) {
+                transactions = transactions.map(t => t.id === editingId ? { ...t, date, concept, amount, tipo: currentTipo, source } : t);
+                editingId = null;
+            } else {
+                transactions.push({ id: Date.now(), date, concept, amount, tipo: currentTipo, source });
+            }
 
-function renderColaboradores(){
-  const cont = document.getElementById('lista-colaboradores');
-  cont.innerHTML = '';
-  const totalDeb = colaboradores.reduce((s,c)=>s+totalDebo(c),0);
-  const acreedores = colaboradores.filter(c=>totalDebo(c)>0);
-  const nar = document.getElementById('narrativa-colaboradores');
-  if(colaboradores.length===0){
-    nar.innerHTML = 'Todavía no registras a nadie de tu equipo. Añade editores, asistentes, luminotécnicos o diseñadores.';
-  } else if(acreedores.length===0){
-    nar.innerHTML = `Tienes <span class="num">${colaboradores.length}</span> colaborador${colaboradores.length===1?'':'es'} y no le debes nada a nadie ahora mismo.`;
-  } else {
-    const nombres = acreedores.map(c=>c.nombre).join(' y ');
-    nar.innerHTML = `Le debes${acreedores.length===1?'':'n'} en total <span class="num debe">${fmt(totalDeb)}</span> a ${nombres}.`;
-  }
-  if(colaboradores.length===0){ cont.innerHTML = '<div class="empty">Aquí aparecerá tu equipo: editores, asistentes, luminotécnicos, diseñadores...</div>'; return; }
+            saveTransactions();
+            closeFormIngresos();
+            render();
+        }
 
-  colaboradores.forEach((c, idx)=>{
-    const deb = totalDebo(c);
-    const pagadoTotal = totalPagadoA(c);
-    const frame = document.createElement('div');
-    frame.className = 'frame'; frame.id = 'frame-col-'+c.id;
-    frame.innerHTML = `
-      <div class="frame-top" onclick="toggleFrameColab(${c.id})">
-        <div class="iris oxide"><span>${iniciales(c.nombre)}</span></div>
-        <div>
-          <div class="frame-id">N.${String(idx+1).padStart(2,'0')}${c.rol ? ' · '+c.rol : ''}</div>
-          <div class="frame-name">${c.nombre}</div>
-          <div class="frame-meta">${c.pagos.length} pago${c.pagos.length===1?'':'s'} · pagado ${fmt(pagadoTotal)}</div>
-        </div>
-        <div class="frame-right">
-          <span class="estado-pill ${deb>0 ? 'estado-debe' : 'estado-al-dia'}">${deb>0 ? 'debes '+fmt(deb) : 'al día'}</span>
-        </div>
-      </div>
-      <div class="frame-detail">
-        ${c.pagos.length===0 ? '<div class="empty" style="padding:14px 0;">Sin pagos registrados todavía.</div>' :
-          c.pagos.map(p => `
-            <div class="detail-row">
-              <div><div class="concepto">${p.concepto}</div><div class="fecha">${p.fecha}</div></div>
-              <div style="text-align:right;">
-                <div class="monto ${p.estado==='pagado' ? 'pagado' : 'debe'}">${fmt(p.monto)}</div>
-                ${p.estado==='pendiente' ? `<button class="cobrado-link" onclick="marcarPagado(${c.id},${p.id})">marcar pagado</button>` : ''}
-              </div>
-            </div>`).join('')}
-        <div class="mini-form-row" style="margin-top:12px;">
-          <button class="btn btn-ghost btn-sm btn-block" onclick="mostrarFormPago(${c.id})">+ Nuevo pago</button>
-        </div>
-        <div class="mini-form" id="form-pago-${c.id}" style="display:none;">
-          <input type="text" id="pg-concepto-${c.id}" placeholder="Concepto (ej. Edición boda Sofía)">
-          <div class="mini-form-row">
-            <input type="number" id="pg-monto-${c.id}" placeholder="Monto (S/)">
-            <select id="pg-estado-${c.id}"><option value="pendiente">Pendiente</option><option value="pagado">Ya pagado</option></select>
-          </div>
-          <button class="btn btn-brass btn-sm" onclick="guardarPago(${c.id})">Guardar pago</button>
-        </div>
-      </div>`;
-    cont.appendChild(frame);
-  });
-}
+        function addSupplier() {
+            const name = document.getElementById('prov-name').value;
+            const amount = parseFloat(document.getElementById('prov-amount').value);
+            const type = document.getElementById('prov-type').value;
 
-function renderCobros(){
-  const pendientes = todosLosPendientes();
-  const pagosPend = todosLosPagosPendientes();
-  const nar = document.getElementById('narrativa-cobros');
+            if (!name || !amount) {
+                alert('Completa todos los campos');
+                return;
+            }
 
-  let frase = '';
-  if(pendientes.length===0 && pagosPend.length===0){
-    frase = 'No tienes cobros ni pagos pendientes. Todo al día, en ambas direcciones.';
-  } else {
-    if(pendientes.length>0){
-      frase += `Tienes <span class="num pend">${pendientes.length}</span> cobro${pendientes.length===1?'':'s'} pendiente${pendientes.length===1?'':'s'} por cobrar. `;
-    }
-    if(pagosPend.length>0){
-      frase += `Debes <span class="num debe">${pagosPend.length}</span> pago${pagosPend.length===1?'':'s'} a tu equipo.`;
-    }
-  }
-  nar.innerHTML = frase;
+            if (editingId) {
+                suppliers = suppliers.map(s => s.id === editingId ? { ...s, name, amount, type, status: currentStatus } : s);
+                editingId = null;
+            } else {
+                suppliers.push({ id: Date.now(), name, amount, type, status: currentStatus });
+            }
 
-  const contCobros = document.getElementById('lista-cobros');
-  contCobros.innerHTML = '';
-  if(pendientes.length===0){
-    contCobros.innerHTML = '<div class="empty">Nadie te debe nada por ahora.</div>';
-  } else {
-    pendientes.forEach(({cliente, proyecto})=>{
-      const dias = diasDesde(proyecto.fecha);
-      const tcClass = dias >= 14 ? 'tc-hot' : dias >= 7 ? 'tc-warn' : 'tc-fresh';
-      const row = document.createElement('div');
-      row.className = 'cobro-row';
-      row.innerHTML = `
-        <div class="cobro-left"><div class="cliente">${cliente.nombre}</div><div class="concepto">${proyecto.concepto}</div></div>
-        <div class="cobro-mid"><span class="timecode ${tcClass}">+${String(dias).padStart(2,'0')}d</span></div>
-        <div class="cobro-right">
-          <div class="cobro-monto">${fmt(proyecto.monto)}</div>
-          <button class="cobrado-link" onclick="marcarCobrado(${cliente.id},${proyecto.id})">marcar cobrado</button>
-        </div>`;
-      contCobros.appendChild(row);
-    });
-  }
+            saveSuppliers();
+            closeFormProveedores();
+            render();
+        }
 
-  const contPagos = document.getElementById('lista-pagos');
-  contPagos.innerHTML = '';
-  if(pagosPend.length===0){
-    contPagos.innerHTML = '<div class="empty">No le debes nada a tu equipo por ahora.</div>';
-  } else {
-    pagosPend.forEach(({colaborador, pago})=>{
-      const dias = diasDesde(pago.fecha);
-      const tcClass = dias >= 14 ? 'tc-hot' : dias >= 7 ? 'tc-warn' : 'tc-fresh';
-      const row = document.createElement('div');
-      row.className = 'cobro-row';
-      row.innerHTML = `
-        <div class="cobro-left"><div class="cliente">${colaborador.nombre}</div><div class="concepto">${pago.concepto}</div></div>
-        <div class="cobro-mid"><span class="timecode ${tcClass}">+${String(dias).padStart(2,'0')}d</span></div>
-        <div class="cobro-right">
-          <div class="cobro-monto">${fmt(pago.monto)}</div>
-          <button class="cobrado-link" onclick="marcarPagado(${colaborador.id},${pago.id})">marcar pagado</button>
-        </div>`;
-      contPagos.appendChild(row);
-    });
-  }
-}
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            saveTransactions();
+            render();
+        }
 
-function renderEquipo(){
-  const total = totalEquipoInvertido();
-  const nar = document.getElementById('narrativa-equipo');
-  nar.innerHTML = equipo.length===0
-    ? 'Todavía no registras equipos. Añade cámaras, lentes, luces o cualquier otra inversión de tu estudio.'
-    : `Tienes <span class="num">${fmt(total)}</span> invertidos en ${equipo.length} equipo${equipo.length===1?'':'s'}.`;
+        function deleteSupplier(id) {
+            suppliers = suppliers.filter(s => s.id !== id);
+            saveSuppliers();
+            render();
+        }
 
-  const cont = document.getElementById('lista-equipo');
-  cont.innerHTML = '';
-  if(equipo.length===0){ cont.innerHTML = '<div class="empty">Sin equipos registrados todavía.</div>'; return; }
+        function editTransaction(id) {
+            const t = transactions.find(tr => tr.id === id);
+            editingId = id;
+            document.getElementById('ing-date').value = t.date;
+            document.getElementById('ing-concept').value = t.concept;
+            document.getElementById('ing-amount').value = t.amount;
+            document.getElementById('ing-source').value = t.source;
+            setTipo(t.tipo);
+            openFormIngresos();
+        }
 
-  const categorias = {};
-  equipo.forEach(e => { (categorias[e.categoria] = categorias[e.categoria] || []).push(e); });
+        function editSupplier(id) {
+            const s = suppliers.find(sup => sup.id === id);
+            editingId = id;
+            document.getElementById('prov-name').value = s.name;
+            document.getElementById('prov-amount').value = s.amount;
+            document.getElementById('prov-type').value = s.type;
+            setStatus(s.status);
+            openFormProveedores();
+        }
 
-  Object.keys(categorias).forEach(cat=>{
-    const items = categorias[cat];
-    const subtotal = items.reduce((s,e)=>s+e.monto,0);
-    const title = document.createElement('div');
-    title.className = 'section-title';
-    title.textContent = `${cat} · ${fmt(subtotal)}`;
-    cont.appendChild(title);
-    items.forEach(e=>{
-      const row = document.createElement('div');
-      row.className = 'equipo-row';
-      row.innerHTML = `
-        <div><div class="nombre">${e.nombre}</div><div class="fecha">${e.fecha}</div></div>
-        <div class="monto">${fmt(e.monto)}</div>`;
-      cont.appendChild(row);
-    });
-  });
-}
+        function renderMonths() {
+            const months = [...new Set(transactions.map(t => t.date.slice(0, 7)))].sort().reverse();
+            const container = document.getElementById('months-container');
+            container.innerHTML = '';
 
-function renderResumen(){
-  const mes = mesActual();
-  const cobradoMes = clientes.flatMap(c=>c.proyectos).filter(p=>p.estado==='pagado' && p.fecha.startsWith(mes)).reduce((s,p)=>s+p.monto,0);
-  const pendienteTotal = clientes.reduce((s,c)=>s+totalPendiente(c),0);
-  const debesTotal = colaboradores.reduce((s,c)=>s+totalDebo(c),0);
-  const equipoTotal = totalEquipoInvertido();
-  const balanceProyectado = cobradoMes + pendienteTotal - debesTotal;
+            if (months.length > 0) {
+                months.forEach(month => {
+                    const btn = document.createElement('button');
+                    btn.className = 'month-btn' + (month === currentMonth ? ' active' : '');
+                    btn.textContent = new Date(month + '-01').toLocaleDateString('es-ES', { month: 'short', year: '2-digit' });
+                    btn.onclick = () => {
+                        currentMonth = month;
+                        render();
+                    };
+                    container.appendChild(btn);
+                });
+            }
+        }
 
-  document.getElementById('st-cobrado').textContent = fmt(cobradoMes);
-  document.getElementById('st-pendiente').textContent = fmt(pendienteTotal);
-  document.getElementById('st-debes').textContent = fmt(debesTotal);
-  document.getElementById('st-equipo').textContent = fmt(equipoTotal);
+        function render() {
+            renderMonths();
+            renderIngresos();
+            renderProveedores();
+            renderResumen();
+        }
 
-  const nar = document.getElementById('narrativa-resumen');
-  let frase = `Este mes cobraste <span class="num">${fmt(cobradoMes)}</span>.`;
-  const deudores = clientes.filter(c=>totalPendiente(c)>0).sort((a,b)=>totalPendiente(b)-totalPendiente(a));
-  if(deudores.length>0){
-    const top = deudores.slice(0,2).map(c=>`${c.nombre} (${fmt(totalPendiente(c))})`).join(' y ');
-    frase += ` Te falta cobrar <span class="num pend">${fmt(pendienteTotal)}</span>, sobre todo de ${top}.`;
-  }
-  const acreedores = colaboradores.filter(c=>totalDebo(c)>0).sort((a,b)=>totalDebo(b)-totalDebo(a));
-  if(acreedores.length>0){
-    const top = acreedores.slice(0,2).map(c=>`${c.nombre} (${fmt(totalDebo(c))})`).join(' y ');
-    frase += ` Le debes <span class="num debe">${fmt(debesTotal)}</span> a tu equipo, sobre todo a ${top}.`;
-  }
-  frase += ` Si cobras todo y pagas todo, terminarías con <span class="num">${fmt(balanceProyectado)}</span>.`;
-  if(equipoTotal>0){
-    frase += ` Aparte, tienes <span class="num">${fmt(equipoTotal)}</span> invertidos en equipo.`;
-  }
-  nar.innerHTML = frase;
+        function renderIngresos() {
+            const filtered = transactions.filter(t => t.date.startsWith(currentMonth));
+            const income = filtered.filter(t => t.tipo === 'Ingreso').reduce((sum, t) => sum + t.amount, 0);
+            const debt = filtered.filter(t => t.tipo === 'Deuda').reduce((sum, t) => sum + t.amount, 0);
 
-  const cont = document.getElementById('lista-breakdown');
-  cont.innerHTML = '';
-  if(clientes.length===0){ cont.innerHTML = '<div class="empty">Sin datos todavía.</div>'; return; }
-  clientes.slice().sort((a,b)=>totalFacturado(b)-totalFacturado(a)).forEach(c=>{
-    const pend = totalPendiente(c);
-    const row = document.createElement('div');
-    row.className = 'cobro-row';
-    row.innerHTML = `
-      <div class="cobro-left"><div class="cliente">${c.nombre}</div><div class="concepto">${c.proyectos.length} proyecto${c.proyectos.length===1?'':'s'}</div></div>
-      <div class="cobro-right">
-        <div class="cobro-monto">${fmt(totalFacturado(c))}</div>
-        ${pend>0 ? `<span class="estado-pill estado-pendiente">debe ${fmt(pend)}</span>` : `<span class="estado-pill estado-al-dia">al día</span>`}
-      </div>`;
-    cont.appendChild(row);
-  });
-}
+            document.getElementById('ingresos-total').textContent = `S/ ${income.toFixed(2)}`;
+            document.getElementById('deudas-total').textContent = `S/ ${debt.toFixed(2)}`;
 
-function renderAll(){
-  renderClientes();
-  renderColaboradores();
-  renderCobros();
-  renderEquipo();
-  renderResumen();
-}
-renderAll();
+            const container = document.getElementById('transactions-list');
+            container.innerHTML = '';
 
-if('serviceWorker' in navigator && location.protocol !== 'file:'){
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
-  });
-}
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty">No hay registros en este mes</div>';
+                return;
+            }
 
-</script>
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'transaction';
+                div.innerHTML = `
+                    <div class="transaction-info">
+                        <div class="transaction-name">${t.concept}</div>
+                        <div class="transaction-meta">${t.source}</div>
+                        <div class="transaction-date">${new Date(t.date).toLocaleDateString('es-ES')}</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <p style="color: ${t.tipo === 'Ingreso' ? '#10b981' : '#ef4444'}; margin: 0;">
+                            ${t.tipo === 'Ingreso' ? '+' : '-'} S/ ${t.amount.toFixed(2)}
+                        </p>
+                    </div>
+                    <div class="transaction-actions">
+                        <button class="btn-small" onclick="editTransaction(${t.id})">✎</button>
+                        <button class="btn-small btn-delete" onclick="deleteTransaction(${t.id})">✕</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderProveedores() {
+            const pending = suppliers.filter(s => s.status === 'Pendiente').reduce((sum, s) => sum + s.amount, 0);
+            const paid = suppliers.filter(s => s.status === 'Pagado').reduce((sum, s) => sum + s.amount, 0);
+
+            document.getElementById('pendiente-total').textContent = `S/ ${pending.toFixed(2)}`;
+            document.getElementById('pagado-total').textContent = `S/ ${paid.toFixed(2)}`;
+
+            const container = document.getElementById('suppliers-list');
+            container.innerHTML = '';
+
+            if (suppliers.length === 0) {
+                container.innerHTML = '<div class="empty">No hay proveedores registrados</div>';
+                return;
+            }
+
+            suppliers.sort((a, b) => {
+                if (a.status === 'Pendiente' && b.status === 'Pagado') return -1;
+                if (a.status === 'Pagado' && b.status === 'Pendiente') return 1;
+                return 0;
+            }).forEach(s => {
+                const div = document.createElement('div');
+                div.className = `supplier ${s.status.toLowerCase()}`;
+                div.innerHTML = `
+                    <div class="supplier-info">
+                        <div class="supplier-name">${s.name}</div>
+                        <div class="supplier-type">${s.type} • ${s.status}</div>
+                    </div>
+                    <div style="text-align: right; margin-right: 12px;">
+                        <p style="margin: 0; font-size: 16px; font-weight: 700; color: #1f2937;">S/ ${s.amount.toFixed(2)}</p>
+                    </div>
+                    <div class="transaction-actions">
+                        <button class="btn-small" onclick="editSupplier(${s.id})">✎</button>
+                        <button class="btn-small btn-delete" onclick="deleteSupplier(${s.id})">✕</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderResumen() {
+            const allIncome = transactions.filter(t => t.tipo === 'Ingreso').reduce((sum, t) => sum + t.amount, 0);
+            const allDebt = transactions.filter(t => t.tipo === 'Deuda').reduce((sum, t) => sum + t.amount, 0);
+            const pending = suppliers.filter(s => s.status === 'Pendiente').reduce((sum, s) => sum + s.amount, 0);
+            const paid = suppliers.filter(s => s.status === 'Pagado').reduce((sum, s) => sum + s.amount, 0);
+            const balance = allIncome - allDebt;
+
+            document.getElementById('res-ingresos').textContent = `S/ ${allIncome.toFixed(2)}`;
+            document.getElementById('res-deudas').textContent = `S/ ${allDebt.toFixed(2)}`;
+            document.getElementById('res-pendiente').textContent = `S/ ${pending.toFixed(2)}`;
+            document.getElementById('res-pagado').textContent = `S/ ${paid.toFixed(2)}`;
+
+            const balanceEl = document.getElementById('res-balance');
+            balanceEl.textContent = `S/ ${balance.toFixed(2)}`;
+            balanceEl.className = `${balance >= 0 ? 'green' : 'red'}`;
+
+            document.getElementById('res-balance-info').textContent = `S/ ${balance.toFixed(2)}`;
+            document.getElementById('res-pendiente-info').textContent = `S/ ${pending.toFixed(2)}`;
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        function saveSuppliers() {
+            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+        }
+
+        init();
+    </script>
 </body>
 </html>
