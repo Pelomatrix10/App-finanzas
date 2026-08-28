@@ -51,7 +51,7 @@ section{display:none}.active-section{display:block}
 .btn-block{width:100%}
 .add-row{display:flex;justify-content:flex-end;margin-bottom:16px}
 .mini-form{margin-top:14px;display:grid;gap:8px}
-.mini-form input,.mini-form select{width:100%;background:var(--ink);border:1px solid var(--line);color:var(--paper);padding:10px 12px;border-radius:8px;font-size:13.5px}
+.mini-form input,.mini-form select{width:100%;background:var(--ink);border:1px solid var(--line);color:var(--paper);padding:10px 12px;border-radius:8px;font-size:16px}
 .mini-form-row{display:flex;gap:8px}
 .filmstrip{position:relative}
 .frame{position:relative;background:var(--ink-2);border:1px solid var(--line);border-radius:4px;margin-bottom:14px;padding:16px 16px 16px 22px;overflow:hidden}
@@ -108,6 +108,7 @@ section{display:none}.active-section{display:block}
   <button class="tab-btn" data-tab="cobros">Pagos</button>
   <button class="tab-btn" data-tab="equipo">Gear</button>
   <button class="tab-btn" data-tab="resumen">Resumen</button>
+  <button class="tab-btn" data-tab="config">Config</button>
 </nav>
 
 <main>
@@ -161,6 +162,25 @@ section{display:none}.active-section{display:block}
   </div>
   <div class="breakdown-title">Por cliente</div><div id="lista-breakdown"></div>
 </section>
+
+<section id="tab-config">
+  <div class="narrativa">
+    Aquí puedes guardar una copia completa de tus datos o restaurarla después. Clientes, proyectos, colaboradores, pagos y gear viajan juntos en un solo archivo.
+  </div>
+
+  <div class="section-title">Copia de seguridad</div>
+
+  <div class="mini-form">
+    <button class="btn btn-brass btn-block" onclick="exportarBackup()">Exportar copia de seguridad</button>
+    <button class="btn btn-ghost btn-block" onclick="document.getElementById('backup-file').click()">Importar copia de seguridad</button>
+    <input id="backup-file" type="file" accept=".json,application/json" style="display:none" onchange="importarBackup(event)">
+  </div>
+
+  <div class="empty" id="backup-status" style="padding:18px 0 0">
+    Recomendación: exporta una copia antes de cambios grandes en la app.
+  </div>
+</section>
+
 </main>
 </div>
 
@@ -300,8 +320,88 @@ function renderResumen(){
  clientes.slice().sort((a,b)=>totalFacturado(b)-totalFacturado(a)).forEach(c=>{const p=totalPendiente(c);cont.insertAdjacentHTML('beforeend',`<div class="cobro-row"><div class="cobro-left"><div class="cliente">${esc(c.nombre)}</div><div class="concepto">${(c.proyectos||[]).length} proyecto${(c.proyectos||[]).length===1?'':'s'}</div></div><div class="cobro-right"><div class="cobro-monto">${fmt(totalFacturado(c))}</div><span class="estado-pill ${p?'estado-pendiente':'estado-al-dia'}">${p?'debe '+fmt(p):'al día'}</span></div></div>`)});
 }
 
+
+function nombreBackup(){
+  return `mis-finanzas-backup-${hoy()}.json`;
+}
+
+function exportarBackup(){
+  const payload = {
+    app: 'Mis Finanzas — Estudio',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    storageKey: STORAGE_KEY,
+    data: { clientes, colaboradores, equipo }
+  };
+
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombreBackup();
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+  const st=document.getElementById('backup-status');
+  if(st) st.textContent='Copia exportada correctamente: '+nombreBackup();
+}
+
+async function importarBackup(event){
+  const file=event.target.files?.[0];
+  if(!file) return;
+
+  try{
+    const text=await file.text();
+    const parsed=JSON.parse(text);
+    const incoming=parsed?.data || parsed;
+
+    if(!incoming || !Array.isArray(incoming.clientes) || !Array.isArray(incoming.colaboradores) || !Array.isArray(incoming.equipo)){
+      throw new Error('Formato de copia no válido');
+    }
+
+    if(!confirm('Esto reemplazará los datos actuales de la app por los de la copia seleccionada. ¿Continuar?')){
+      event.target.value='';
+      return;
+    }
+
+    clientes=incoming.clientes;
+    colaboradores=incoming.colaboradores;
+    equipo=incoming.equipo;
+
+    nextClienteId=nextId(clientes);
+    nextProyectoId=nextId(clientes.flatMap(c=>c.proyectos||[]));
+    nextColabId=nextId(colaboradores);
+    nextPagoId=nextId(colaboradores.flatMap(c=>c.pagos||[]));
+    nextEquipoId=nextId(equipo);
+
+    guardar();
+    renderAll();
+
+    const st=document.getElementById('backup-status');
+    if(st) st.textContent='Copia restaurada correctamente desde '+file.name;
+    alert('Copia restaurada correctamente.');
+  }catch(err){
+    alert('No se pudo importar la copia. Revisa que sea un archivo JSON exportado desde esta app.');
+  }finally{
+    event.target.value='';
+  }
+}
+
+Object.assign(window,{exportarBackup,importarBackup});
+
 function renderAll(){renderClientes();renderColaboradores();renderCobros();renderEquipo();renderResumen()}
 renderAll();
+
+
+document.addEventListener('focusout', (event)=>{
+  if(event.target.matches('input,select,textarea')){
+    setTimeout(()=>{
+      window.scrollTo({top:window.scrollY,left:0,behavior:'smooth'});
+    },120);
+  }
+});
 
 if('serviceWorker' in navigator && location.protocol!=='file:'){
  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
