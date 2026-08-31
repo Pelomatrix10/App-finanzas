@@ -1,4 +1,4 @@
-const CACHE_NAME = "mis-finanzas-github-v1";
+const CACHE_NAME = "tito-github-v2";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
