@@ -1,14 +1,14 @@
 {
-  "name": "Mis Finanzas",
-  "short_name": "Mis Finanzas",
-  "description": "Control de ingresos, deudas y pagos a proveedores.",
+  "name": "TiTo — Finanzas del estudio",
+  "short_name": "TiTo",
+  "description": "Cobros, pagos y finanzas de tu estudio, sin vueltas.",
   "lang": "es-PE",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f9fafb",
-  "theme_color": "#1f2937",
+  "background_color": "#0B2036",
+  "theme_color": "#0B2036",
   "icons": [
     {
       "src": "./icons/icon-192.png",
