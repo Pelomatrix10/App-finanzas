@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v2";
+const CACHE_NAME = "tito-github-v3";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
@@ -7,7 +7,14 @@ const APP_SHELL = [
   BASE + "manifest.json",
   BASE + "icons/icon-192.png",
   BASE + "icons/icon-512.png",
-  BASE + "icons/apple-touch-icon.png"
+  BASE + "icons/apple-touch-icon.png",
+  BASE + "icons/favicon-48.png",
+  BASE + "assets/tito-logo-master.webp",
+  BASE + "assets/tito-gato-cobro-00.webp",
+  BASE + "assets/tito-gato-cobro-25.webp",
+  BASE + "assets/tito-gato-cobro-50.webp",
+  BASE + "assets/tito-gato-cobro-75.webp",
+  BASE + "assets/tito-gato-cobro-100.webp"
 ];
 
 self.addEventListener("install", (event) => {
