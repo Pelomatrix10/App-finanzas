@@ -10,42 +10,18 @@
     clientes.forEach(c=>(c.proyectos||[]).forEach(p=>{
       const fecha=p.estado==='pagado'?fechaPago(p):fechaCreacion(p);
       if(mesDeFecha(fecha)!==mes) return;
-      items.push({
-        fecha:String(fecha||''),
-        tipo:p.estado==='pagado'?'Cobro':'Proyecto pendiente',
-        titulo:c.nombre,
-        detalle:p.concepto,
-        monto:Number(p.monto||0),
-        signo:p.estado==='pagado'?'+':'',
-        clase:p.estado==='pagado'?'pagado':'pendiente'
-      });
+      items.push({fecha:String(fecha||''),tipo:p.estado==='pagado'?'Cobro':'Proyecto pendiente',titulo:c.nombre,detalle:p.concepto,monto:Number(p.monto||0),signo:p.estado==='pagado'?'+':'',clase:p.estado==='pagado'?'pagado':'pendiente'});
     }));
 
     colaboradores.forEach(c=>(c.pagos||[]).forEach(p=>{
       const fecha=p.estado==='pagado'?fechaPago(p):fechaCreacion(p);
       if(mesDeFecha(fecha)!==mes) return;
-      items.push({
-        fecha:String(fecha||''),
-        tipo:p.estado==='pagado'?'Pago al equipo':'Pago pendiente',
-        titulo:c.nombre,
-        detalle:p.concepto,
-        monto:Number(p.monto||0),
-        signo:p.estado==='pagado'?'-':'',
-        clase:p.estado==='pagado'?'debe':'pendiente'
-      });
+      items.push({fecha:String(fecha||''),tipo:p.estado==='pagado'?'Pago al equipo':'Pago pendiente',titulo:c.nombre,detalle:p.concepto,monto:Number(p.monto||0),signo:p.estado==='pagado'?'-':'',clase:p.estado==='pagado'?'debe':'pendiente'});
     }));
 
     equipo.forEach(e=>{
       if(mesDeFecha(e.fecha)!==mes) return;
-      items.push({
-        fecha:String(e.fecha||''),
-        tipo:'Gear',
-        titulo:e.nombre,
-        detalle:e.categoria||'Equipo',
-        monto:Number(e.monto||0),
-        signo:'',
-        clase:''
-      });
+      items.push({fecha:String(e.fecha||''),tipo:'Gear',titulo:e.nombre,detalle:e.categoria||'Equipo',monto:Number(e.monto||0),signo:'',clase:''});
     });
 
     return items.sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha)));
@@ -56,8 +32,8 @@
     if(!breakdown) return;
     const bloque=breakdown.parentElement;
     if(bloque) bloque.style.display='none';
-
     if(document.getElementById('summary-movements-cta')) return;
+
     const card=document.createElement('button');
     card.id='summary-movements-cta';
     card.type='button';
@@ -80,7 +56,7 @@
   }
 
   function renderPanel(){
-    const section=document.getElementById('tab-pagos');
+    const section=document.getElementById('tab-cobros');
     if(!section) return;
     let panel=document.getElementById('movimientos-mes-panel');
     if(!panel){
@@ -99,7 +75,7 @@
 
   function abrirMovimientos(){
     renderPanel();
-    const btn=document.querySelector('.tab-btn[data-tab="pagos"]');
+    const btn=document.querySelector('.tab-btn[data-tab="cobros"]');
     if(btn) btn.click();
     setTimeout(()=>{
       document.getElementById('movimientos-mes-panel')?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -108,10 +84,7 @@
 
   if(typeof renderResumen==='function'){
     const renderResumenBase=renderResumen;
-    renderResumen=function(){
-      renderResumenBase();
-      actualizarCTA();
-    };
+    renderResumen=function(){renderResumenBase();actualizarCTA();};
   }
 
   asegurarCTA();
