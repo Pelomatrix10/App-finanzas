@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v8-role-ui";
+const CACHE_NAME = "tito-github-v9-month-history";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
@@ -6,6 +6,7 @@ const APP_SHELL = [
   BASE + "index.html",
   BASE + "supabase-config.js",
   BASE + "role-ui.js",
+  BASE + "month-history.js",
   BASE + "manifest.json",
   BASE + "icons/icon-192.png",
   BASE + "icons/icon-512.png",
@@ -37,21 +38,20 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-async function withRoleUI(response){
+async function enhanceHtml(response){
   if(!response || !response.ok) return response;
   const type = response.headers.get("content-type") || "";
   if(!type.includes("text/html")) return response;
 
-  const html = await response.text();
-  if(html.includes('src="./role-ui.js"') || html.includes('src="role-ui.js"')){
-    return new Response(html,{status:response.status,statusText:response.statusText,headers:response.headers});
+  let html = await response.text();
+  if(!html.includes('src="./role-ui.js"') && !html.includes('src="role-ui.js"')){
+    html = html.includes("</body>") ? html.replace("</body>", '<script src="./role-ui.js"></script></body>') : html + '<script src="./role-ui.js"></script>';
+  }
+  if(!html.includes('src="./month-history.js"') && !html.includes('src="month-history.js"')){
+    html = html.includes("</body>") ? html.replace("</body>", '<script src="./month-history.js"></script></body>') : html + '<script src="./month-history.js"></script>';
   }
 
-  const injected = html.includes("</body>")
-    ? html.replace("</body>", '<script src="./role-ui.js"></script></body>')
-    : html + '<script src="./role-ui.js"></script>';
-
-  return new Response(injected,{
+  return new Response(html,{
     status: response.status,
     statusText: response.statusText,
     headers: response.headers
@@ -68,18 +68,18 @@ self.addEventListener("fetch", (event) => {
       .then(async (response) => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-        if(event.request.mode === "navigate") return withRoleUI(response);
+        if(event.request.mode === "navigate") return enhanceHtml(response);
         return response;
       })
       .catch(() =>
         caches.match(event.request).then(async (cached) => {
           if (cached) {
-            if(event.request.mode === "navigate") return withRoleUI(cached);
+            if(event.request.mode === "navigate") return enhanceHtml(cached);
             return cached;
           }
           if (event.request.mode === "navigate") {
             const fallback = await caches.match(BASE + "index.html");
-            return withRoleUI(fallback);
+            return enhanceHtml(fallback);
           }
         })
       )
