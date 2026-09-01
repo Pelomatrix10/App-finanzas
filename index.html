@@ -6,10 +6,11 @@
 <title>TiTo — Finanzas del estudio</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="48x48" href="./icons/favicon-48.png">
 <meta name="theme-color" content="#0B2036">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Mis Finanzas">
+<meta name="apple-mobile-web-app-title" content="TiTo">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -33,7 +34,9 @@ header{padding:26px 22px 17px;padding-top:max(26px,env(safe-area-inset-top));dis
 .brand-lockup{min-width:0}
 .eyebrow{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--brass)}
-header h1{font-family:'Anton',sans-serif;font-weight:400;font-size:38px;margin:0 0 5px;letter-spacing:-.01em;line-height:.95}
+.brand-name{display:flex;align-items:center;gap:10px;margin:0 0 6px}
+.brand-mark{width:52px;height:42px;object-fit:cover;border-radius:8px;flex:none}
+header h1{font-family:'Anton',sans-serif;font-weight:400;font-size:38px;margin:0;letter-spacing:-.01em;line-height:.95}
 header p.sub{margin:0;font-size:13px;color:var(--paper-dim);line-height:1.5}
 header .month{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--paper-dim);white-space:nowrap;padding-bottom:3px}
 nav.tabs{position:fixed;z-index:20;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;display:flex;padding:7px 8px max(7px,env(safe-area-inset-bottom));border-top:1px solid var(--line);gap:2px;overflow-x:auto;scrollbar-width:none;background:rgba(11,32,54,.96);backdrop-filter:blur(14px)}
@@ -111,17 +114,17 @@ section{display:none}.active-section{display:block}
 .summary-card{min-height:108px;background:var(--ink-2);border:1px solid var(--line);border-radius:17px;padding:15px;display:flex;flex-direction:column;justify-content:space-between}
 .summary-card-value{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;margin-top:16px}
 .summary-card.olive .summary-card-value{color:#AABC87}.summary-card.terracotta .summary-card-value{color:var(--terracotta)}.summary-card.taupe .summary-card-value{color:#C4AF9E}.summary-card.brown .summary-card-value{color:#BCA899}
-.gato-card{display:grid;grid-template-columns:94px 1fr;gap:16px;align-items:center;background:var(--terracotta);color:var(--ink);border-radius:22px;padding:18px;margin-bottom:13px}
-.cat-meter{position:relative;width:86px;height:86px;border-radius:50%;background:conic-gradient(var(--ink) calc(var(--meter,0) * 1%),rgba(244,239,229,.32) 0);display:grid;place-items:center}
-.cat-meter::before{content:'';position:absolute;width:66px;height:66px;border-radius:50%;background:var(--terracotta)}
-.cat-face{position:relative;z-index:1;font-size:31px;transform:translateY(-1px)}
+.gato-card{display:grid;grid-template-columns:112px 1fr;gap:17px;align-items:center;background:var(--cream);color:var(--ink);border-radius:22px;padding:16px;margin-bottom:13px;overflow:hidden}
+.cat-visual{height:132px;display:flex;align-items:flex-end;justify-content:center}
+.cat-image{display:block;max-width:112px;max-height:132px;object-fit:contain;mix-blend-mode:multiply}
 .gato-copy .summary-card-label{opacity:.72}.gato-copy h3{font-family:'Bebas Neue',sans-serif;font-size:25px;font-weight:400;line-height:1;margin:7px 0 6px}.gato-copy p{font-size:11px;line-height:1.45;margin:0;opacity:.78}
+.gato-progress{height:5px;border-radius:999px;background:rgba(11,32,54,.13);overflow:hidden;margin-top:11px}.gato-progress span{display:block;height:100%;width:0;background:var(--terracotta);border-radius:inherit;transition:width .6s ease}
 .editorial-card{background:var(--ink-2);border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:13px}
 .editorial-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:15px}.editorial-head h3{font-family:'Bebas Neue',sans-serif;font-size:20px;font-weight:400;margin:0}.editorial-head span{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--paper-dim)}
 .client-chart{display:flex;align-items:flex-end;gap:9px;height:116px;border-bottom:1px solid var(--line);padding:0 2px 7px}
 .chart-col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;min-width:0}.chart-bar{width:100%;max-width:38px;min-height:5px;background:var(--moss);border-radius:7px 7px 2px 2px}.chart-col:nth-child(2n) .chart-bar{background:var(--taupe,#927D6C)}.chart-label{width:100%;font-size:8px;color:var(--paper-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
 .summary-breakdown .cobro-row{background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;padding:13px 0;margin:0}.summary-breakdown .cobro-row:first-child{border-top:0}
-@media(max-width:370px){nav.tabs button{min-width:52px;font-size:8px}.gato-card{grid-template-columns:78px 1fr}.cat-meter{width:74px;height:74px}.cat-meter::before{width:56px;height:56px}}
+@media(max-width:370px){nav.tabs button{min-width:52px;font-size:8px}.gato-card{grid-template-columns:96px 1fr}.cat-image{max-width:96px}}
 </style>
 </head>
 <body>
@@ -129,8 +132,8 @@ section{display:none}.active-section{display:block}
 <header>
   <div class="brand-lockup">
     <div class="eyebrow"><span class="dot"></span> Finanzas del estudio</div>
-    <h1>TiTo</h1>
-    <p class="sub">Tu plata, sin vueltas.</p>
+    <div class="brand-name"><img class="brand-mark" src="./assets/tito-logo-master.webp" alt=""><h1>TiTo</h1></div>
+    <p class="sub">Tú farmea. TiTo lleva la cuenta.</p>
   </div>
   <div class="month" id="header-month"></div>
 </header>
@@ -203,8 +206,8 @@ section{display:none}.active-section{display:block}
     <div class="summary-card taupe"><div class="summary-card-label">Invertido en gear</div><div class="summary-card-value" id="st-equipo">S/ 0</div></div>
   </div>
   <div class="gato-card">
-    <div class="cat-meter" id="gato-meter"><div class="cat-face">🐱</div></div>
-    <div class="gato-copy"><div class="summary-card-label">Gato de Cobro</div><h3 id="gato-title">Todo bajo control</h3><p id="gato-copy">No tienes cobros esperando.</p></div>
+    <div class="cat-visual"><img class="cat-image" id="gato-image" src="./assets/tito-gato-cobro-00.webp" alt="Gato de Cobro al 0%"></div>
+    <div class="gato-copy"><div class="summary-card-label">Gato de Cobro · <span id="gato-percent">0%</span></div><h3 id="gato-title">Inicio</h3><p id="gato-copy">Registra proyectos para empezar.</p><div class="gato-progress"><span id="gato-progress-bar"></span></div></div>
   </div>
   <div class="editorial-card">
     <div class="editorial-head"><h3>Movimiento por cliente</h3><span>Facturación total</span></div>
@@ -369,10 +372,11 @@ function renderResumen(){
  const mes=mesActual(),cobrado=clientes.flatMap(c=>c.proyectos||[]).filter(p=>p.estado==='pagado'&&String(p.fecha||'').startsWith(mes)).reduce((s,p)=>s+Number(p.monto||0),0),pend=clientes.reduce((s,c)=>s+totalPendiente(c),0),debes=colaboradores.reduce((s,c)=>s+totalDebo(c),0),gear=totalEquipoInvertido(),bal=cobrado+pend-debes;
  document.getElementById('st-cobrado').textContent=fmt(cobrado);document.getElementById('st-pendiente').textContent=fmt(pend);document.getElementById('st-debes').textContent=fmt(debes);document.getElementById('st-equipo').textContent=fmt(gear);document.getElementById('st-balance').textContent=fmt(bal);
  document.getElementById('narrativa-resumen').textContent=pend?`Tienes ${fmt(pend)} esperando ser cobrados. TiTo te ayuda a mantenerlos a la vista.`:'Tus cobros están al día. Un buen momento para mirar cómo viene creciendo el estudio.';
- const pendientes=todosLosPendientes(),maxDias=Math.max(0,...pendientes.map(({proyecto})=>diasDesde(proyecto.fecha))),nivel=Math.min(100,pendientes.length*18+Math.min(maxDias,30)*1.7);
- document.getElementById('gato-meter').style.setProperty('--meter',nivel.toFixed(0));
- document.getElementById('gato-title').textContent=!pendientes.length?'Todo bajo control':maxDias>=14?'El gato está alerta':pendientes.length===1?'Un cobro en la mira':`${pendientes.length} cobros en la mira`;
- document.getElementById('gato-copy').textContent=!pendientes.length?'No tienes cobros esperando. El gato puede descansar.':maxDias>=14?`El cobro más antiguo lleva ${maxDias} días pendiente.`:`Tienes ${fmt(pend)} por cobrar. Nada que no puedas ordenar.`;
+ const proyectos=clientes.flatMap(c=>c.proyectos||[]),facturado=proyectos.reduce((s,p)=>s+Number(p.monto||0),0),cobradoTotal=proyectos.filter(p=>p.estado==='pagado').reduce((s,p)=>s+Number(p.monto||0),0),porcentaje=facturado?Math.round(cobradoTotal/facturado*100):0;
+ const estado=porcentaje>=100?'100':porcentaje>=75?'75':porcentaje>=50?'50':porcentaje>=25?'25':'00',estadoTexto={"00":"Inicio","25":"En curso","50":"A la mitad","75":"Casi listo","100":"Cobrado"}[estado];
+ const gato=document.getElementById('gato-image');gato.src=`./assets/tito-gato-cobro-${estado}.webp`;gato.alt=`Gato de Cobro al ${porcentaje}%`;
+ document.getElementById('gato-percent').textContent=porcentaje+'%';document.getElementById('gato-title').textContent=estadoTexto;document.getElementById('gato-progress-bar').style.width=porcentaje+'%';
+ document.getElementById('gato-copy').textContent=!proyectos.length?'Registra proyectos para empezar.':porcentaje>=100?'Todos los proyectos registrados están cobrados.':`Has cobrado ${fmt(cobradoTotal)} de ${fmt(facturado)}.`;
  const ranking=clientes.slice().sort((a,b)=>totalFacturado(b)-totalFacturado(a)).slice(0,5),maxTotal=Math.max(1,...ranking.map(totalFacturado)),chart=document.getElementById('client-chart');
  chart.innerHTML=ranking.length?ranking.map(c=>`<div class="chart-col" title="${esc(c.nombre)}: ${fmt(totalFacturado(c))}"><div class="chart-bar" style="height:${Math.max(6,totalFacturado(c)/maxTotal*88)}px"></div><div class="chart-label">${esc(c.nombre)}</div></div>`).join(''):'<div class="empty" style="margin:auto">Agrega clientes y proyectos para ver el gráfico.</div>';
  const cont=document.getElementById('lista-breakdown');cont.innerHTML=clientes.length?'':'<div class="empty">Sin datos todavía.</div>';
@@ -386,7 +390,7 @@ function nombreBackup(){
 
 function exportarBackup(){
   const payload = {
-    app: 'Mis Finanzas — Estudio',
+    app: 'TiTo — Finanzas del estudio',
     version: 1,
     exportedAt: new Date().toISOString(),
     storageKey: STORAGE_KEY,
