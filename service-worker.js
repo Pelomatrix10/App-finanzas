@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v11-month-movements-fix";
+const CACHE_NAME = "tito-github-v12-unified-month-summary";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
