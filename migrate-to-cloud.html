@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TiTo · Migración segura</title>
+<meta name="theme-color" content="#0B2036">
+<style>
+:root{--navy:#0B2036;--navy2:#102A44;--cream:#F4EFE5;--olive:#6E8051;--taupe:#927D6C;--terra:#C9824A;--line:rgba(244,239,229,.15)}
+*{box-sizing:border-box}body{margin:0;background:var(--navy);color:var(--cream);font-family:Arial,sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px}.card{width:min(100%,440px);background:var(--navy2);border:1px solid var(--line);border-radius:22px;padding:26px}.kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);font-weight:700}.title{font-family:Georgia,serif;font-size:30px;margin:8px 0 10px}.copy{font-size:14px;line-height:1.55;color:#d7cec2}.status{margin:18px 0;padding:14px;border-radius:12px;background:rgba(244,239,229,.06);font-size:13px;line-height:1.5}.status.ok{border:1px solid rgba(110,128,81,.55)}.status.err{border:1px solid rgba(201,130,74,.65)}button{width:100%;border:0;border-radius:12px;padding:14px 16px;font-size:16px;font-weight:700;cursor:pointer;background:var(--olive);color:white}button:disabled{opacity:.45;cursor:not-allowed}.small{font-size:12px;color:#bfb4a7;margin-top:14px;line-height:1.5}.counts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}.count{border:1px solid var(--line);border-radius:12px;padding:11px}.count b{display:block;font-size:20px}.count span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#bfb4a7}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="kicker">TiTo · Migración v1</div>
+  <div class="title">Copia tus datos a la nube</div>
+  <div class="copy">Esta herramienta copia tus datos actuales de TiTo a Supabase. No elimina ni modifica tu copia local.</div>
+  <div id="counts" class="counts"></div>
+  <div id="status" class="status">Comprobando sesión y datos…</div>
+  <button id="migrate" disabled>Copiar a Supabase</button>
+  <div class="small">Solo funciona con una cuenta Admin autorizada. Si la nube ya contiene datos, la migración se detiene para evitar duplicados.</div>
+</div>
+<script src="./supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const STORAGE_KEY='estudio_app_completa_v1';
+const statusEl=document.getElementById('status');
+const button=document.getElementById('migrate');
+const countsEl=document.getElementById('counts');
+let client=null,user=null,payload=null;
+const today=()=>new Date().toISOString().slice(0,10);
+const safeDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))?String(v):today();
+const safeAmount=v=>{const n=Number(v||0);return Number.isFinite(n)&&n>=0?n:0};
+function setStatus(text,type=''){statusEl.textContent=text;statusEl.className='status'+(type?' '+type:'')}
+function readLocal(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return null;const x=JSON.parse(raw);return{clientes:Array.isArray(x.clientes)?x.clientes:[],colaboradores:Array.isArray(x.colaboradores)?x.colaboradores:[],equipo:Array.isArray(x.equipo)?x.equipo:[]}}catch{return null}}
+function renderCounts(){if(!payload)return;const proyectos=payload.clientes.reduce((n,c)=>n+(Array.isArray(c.proyectos)?c.proyectos.length:0),0);const pagos=payload.colaboradores.reduce((n,c)=>n+(Array.isArray(c.pagos)?c.pagos.length:0),0);countsEl.innerHTML=`<div class="count"><b>${payload.clientes.length}</b><span>Clientes</span></div><div class="count"><b>${proyectos}</b><span>Proyectos</span></div><div class="count"><b>${payload.colaboradores.length}</b><span>Colaboradores</span></div><div class="count"><b>${pagos}</b><span>Pagos</span></div><div class="count"><b>${payload.equipo.length}</b><span>Gear</span></div>`}
+async function rollback(ids){try{if(ids.proyectos.length)await client.from('proyectos').delete().in('id',ids.proyectos);if(ids.pagos.length)await client.from('pagos').delete().in('id',ids.pagos);if(ids.clientes.length)await client.from('clientes').delete().in('id',ids.clientes);if(ids.colaboradores.length)await client.from('colaboradores').delete().in('id',ids.colaboradores);if(ids.gear.length)await client.from('gear').delete().in('id',ids.gear)}catch(e){console.error(e)}}
+async function init(){try{const cfg=window.TITO_SUPABASE_CONFIG;if(!cfg?.url||!cfg?.publishableKey)throw new Error('Configuración de Supabase no disponible');client=window.supabase.createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true}});const {data:{session},error}=await client.auth.getSession();if(error)throw error;if(!session?.user){setStatus('No hay sesión activa. Abre TiTo, inicia sesión con Google y vuelve aquí.','err');return}user=session.user;const {data:access,error:aErr}=await client.from('beta_users').select('role,active,expires_at').eq('email',user.email).maybeSingle();if(aErr)throw aErr;const expired=access?.expires_at&&new Date(access.expires_at)<=new Date();if(!access||!access.active||expired||access.role!=='admin'){setStatus('Esta herramienta solo está disponible para la cuenta Admin activa.','err');return}payload=readLocal();if(!payload){setStatus('No encontré datos locales de TiTo en este navegador.','err');return}renderCounts();const checks=await Promise.all([client.from('clientes').select('id',{count:'exact',head:true}),client.from('colaboradores').select('id',{count:'exact',head:true}),client.from('gear').select('id',{count:'exact',head:true})]);if(checks.some(x=>x.error))throw(checks.find(x=>x.error).error);const remote=(checks[0].count||0)+(checks[1].count||0)+(checks[2].count||0);if(remote>0){setStatus('Supabase ya contiene datos para tu usuario. Por seguridad no voy a duplicarlos.','err');return}const total=payload.clientes.length+payload.colaboradores.length+payload.equipo.length;if(total===0){setStatus('Tu almacenamiento local está vacío. No hay nada que migrar.','err');return}setStatus('Todo listo. Tus datos locales permanecen intactos durante todo el proceso.','ok');button.disabled=false}catch(e){console.error(e);setStatus('No se pudo preparar la migración: '+(e.message||e),'err')}}
+button.addEventListener('click',async()=>{button.disabled=true;setStatus('Copiando datos a Supabase…');const ids={clientes:[],proyectos:[],colaboradores:[],pagos:[],gear:[]};try{for(const c of payload.clientes){const {data:cr,error}=await client.from('clientes').insert({user_id:user.id,nombre:String(c.nombre||'Sin nombre'),nota:c.nota?String(c.nota):null}).select('id').single();if(error)throw error;ids.clientes.push(cr.id);for(const p of(Array.isArray(c.proyectos)?c.proyectos:[])){const {data:pr,error:pe}=await client.from('proyectos').insert({user_id:user.id,cliente_id:cr.id,concepto:String(p.concepto||'Sin concepto'),monto:safeAmount(p.monto),estado:p.estado==='pagado'?'pagado':'pendiente',fecha:safeDate(p.fecha)}).select('id').single();if(pe)throw pe;ids.proyectos.push(pr.id)}}for(const c of payload.colaboradores){const {data:cr,error}=await client.from('colaboradores').insert({user_id:user.id,nombre:String(c.nombre||'Sin nombre'),rol:c.rol?String(c.rol):null}).select('id').single();if(error)throw error;ids.colaboradores.push(cr.id);for(const p of(Array.isArray(c.pagos)?c.pagos:[])){const {data:pr,error:pe}=await client.from('pagos').insert({user_id:user.id,colaborador_id:cr.id,concepto:String(p.concepto||'Sin concepto'),monto:safeAmount(p.monto),estado:p.estado==='pagado'?'pagado':'pendiente',fecha:safeDate(p.fecha)}).select('id').single();if(pe)throw pe;ids.pagos.push(pr.id)}}for(const g of payload.equipo){const {data:gr,error}=await client.from('gear').insert({user_id:user.id,nombre:String(g.nombre||'Sin nombre'),categoria:g.categoria?String(g.categoria):null,monto:safeAmount(g.monto),fecha:safeDate(g.fecha)}).select('id').single();if(error)throw error;ids.gear.push(gr.id)}localStorage.setItem(`tito_cloud_migration_v1_${user.id}`,'done');localStorage.setItem(`tito_cloud_migration_v1_${user.id}_at`,new Date().toISOString());setStatus(`Migración completada. ${ids.clientes.length} clientes, ${ids.proyectos.length} proyectos, ${ids.colaboradores.length} colaboradores, ${ids.pagos.length} pagos y ${ids.gear.length} items de gear ya están en Supabase. Tu copia local sigue intacta.`,'ok');button.textContent='Migración completada'}catch(e){console.error(e);setStatus('Ocurrió un error. Estoy revirtiendo este intento; tus datos locales siguen intactos.','err');await rollback(ids);button.disabled=false}});
+init();
+</script>
+</body>
+</html>
