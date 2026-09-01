@@ -27,30 +27,54 @@
     return items.sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha)));
   }
 
-  function asegurarCTA(){
+  function asegurarHubMensual(){
     const breakdown=document.getElementById('lista-breakdown');
     if(!breakdown) return;
     const bloque=breakdown.parentElement;
     if(bloque) bloque.style.display='none';
-    if(document.getElementById('summary-movements-cta')) return;
+
+    const kicker=document.querySelector('#tab-resumen .summary-kicker');
+    if(kicker) kicker.style.display='none';
+
+    if(document.getElementById('summary-month-hub')) return;
+
+    const hub=document.createElement('div');
+    hub.id='summary-month-hub';
+    hub.className='editorial-card';
+    hub.style.marginTop='20px';
+    hub.style.padding='16px';
+
+    const head=document.createElement('div');
+    head.className='editorial-head';
+    head.style.marginBottom='12px';
+    head.innerHTML='<h3 style="margin:0">Mes del resumen</h3><span>Histórico</span>';
+    hub.appendChild(head);
+
+    const monthControl=document.querySelector('#tab-resumen .month-control');
+    if(monthControl){
+      monthControl.style.margin='0 0 12px';
+      monthControl.style.padding='0';
+      hub.appendChild(monthControl);
+    }
 
     const card=document.createElement('button');
     card.id='summary-movements-cta';
     card.type='button';
     card.className='btn btn-ghost btn-block';
-    card.style.marginTop='20px';
-    card.style.padding='16px';
+    card.style.padding='14px 15px';
     card.style.textAlign='left';
     card.style.display='flex';
     card.style.justifyContent='space-between';
     card.style.alignItems='center';
-    card.innerHTML='<span><strong style="display:block;font-size:16px">Ver movimientos del mes</strong><small id="summary-movements-label" style="display:block;margin-top:4px;color:var(--paper-dim);font-family:Inter,sans-serif;letter-spacing:0;text-transform:none"></small></span><span aria-hidden="true" style="font-size:22px">→</span>';
-    (bloque||breakdown).insertAdjacentElement('beforebegin',card);
+    card.innerHTML='<span><strong style="display:block;font-size:16px">Ver movimientos</strong><small id="summary-movements-label" style="display:block;margin-top:4px;color:var(--paper-dim);font-family:Inter,sans-serif;letter-spacing:0;text-transform:none"></small></span><span aria-hidden="true" style="font-size:22px">→</span>';
     card.addEventListener('click',abrirMovimientos);
+    hub.appendChild(card);
+
+    (bloque||breakdown).insertAdjacentElement('beforebegin',hub);
   }
 
-  function actualizarCTA(){
-    asegurarCTA();
+  function actualizarHub(){
+    asegurarHubMensual();
     const label=document.getElementById('summary-movements-label');
     if(label) label.textContent=nombreMes(resumenMes);
   }
@@ -73,21 +97,27 @@
     `;
   }
 
+  function activarPestana(tab){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+    document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('active-section',s.id==='tab-'+tab));
+    if(typeof renderAll==='function') renderAll();
+  }
+
   function abrirMovimientos(){
     renderPanel();
-    const btn=document.querySelector('.tab-btn[data-tab="cobros"]');
-    if(btn) btn.click();
-    setTimeout(()=>{
-      document.getElementById('movimientos-mes-panel')?.scrollIntoView({behavior:'smooth',block:'start'});
-    },80);
+    activarPestana('cobros');
+    requestAnimationFrame(()=>{
+      const panel=document.getElementById('movimientos-mes-panel');
+      if(panel) panel.scrollIntoView({behavior:'smooth',block:'start'});
+    });
   }
 
   if(typeof renderResumen==='function'){
     const renderResumenBase=renderResumen;
-    renderResumen=function(){renderResumenBase();actualizarCTA();};
+    renderResumen=function(){renderResumenBase();actualizarHub();};
   }
 
-  asegurarCTA();
-  actualizarCTA();
+  asegurarHubMensual();
+  actualizarHub();
   if(typeof renderAll==='function') renderAll();
 })();
