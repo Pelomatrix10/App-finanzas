@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v12-unified-month-summary";
+const CACHE_NAME = "tito-github-v13-beta-welcome";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
@@ -8,6 +8,7 @@ const APP_SHELL = [
   BASE + "role-ui.js",
   BASE + "month-history.js",
   BASE + "summary-movements.js",
+  BASE + "beta-welcome.js",
   BASE + "manifest.json",
   BASE + "icons/icon-192.png",
   BASE + "icons/icon-512.png",
@@ -45,7 +46,7 @@ async function enhanceHtml(response){
   if(!type.includes("text/html")) return response;
 
   let html = await response.text();
-  const scripts = ["role-ui.js","month-history.js","summary-movements.js"];
+  const scripts = ["role-ui.js","month-history.js","summary-movements.js","beta-welcome.js"];
   for(const script of scripts){
     if(!html.includes(`src="./${script}"`) && !html.includes(`src="${script}"`)){
       html = html.includes("</body>") ? html.replace("</body>", `<script src="./${script}"></script></body>`) : html + `<script src="./${script}"></script>`;
