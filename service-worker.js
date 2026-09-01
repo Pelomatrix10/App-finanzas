@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v5-auth";
+const CACHE_NAME = "tito-github-v6-admin";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
@@ -58,3 +58,4 @@ self.addEventListener("fetch", (event) => {
       )
   );
 });
+

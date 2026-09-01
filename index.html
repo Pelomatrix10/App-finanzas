@@ -31,6 +31,8 @@ body{font-family:'Inter',sans-serif;display:flex;justify-content:center}
 .auth-card h2{font-family:'Anton',sans-serif;font-size:34px;font-weight:400;line-height:1;margin:0 0 10px}.auth-card p{font-size:13px;line-height:1.55;color:var(--paper-dim);margin:0 auto 20px;max-width:310px}.auth-status{min-height:20px;margin-top:14px!important;font-size:12px!important;color:var(--terracotta)!important}
 .auth-google{display:flex;align-items:center;justify-content:center;gap:10px}.auth-google svg{width:18px;height:18px;flex:none}.app[hidden]{display:none}
 .account-card{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:18px}.account-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.account-email{font-size:13px;font-weight:600;overflow-wrap:anywhere}.role-pill{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--moss);background:var(--moss-bg);padding:5px 8px;border-radius:999px;white-space:nowrap}.account-actions{margin-top:12px}
+.admin-hero{padding:12px 2px 18px}.admin-hero h2{font-family:'Bebas Neue',sans-serif;font-size:29px;font-weight:400;line-height:1.05;margin:0 0 8px}.admin-hero p{font-size:13px;color:var(--paper-dim);line-height:1.55;margin:0}.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}.admin-stat{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:13px 9px;text-align:center}.admin-stat strong{display:block;font-family:'Anton',sans-serif;font-size:22px;font-weight:400}.admin-stat span{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.05em;text-transform:uppercase;color:var(--paper-dim)}
+.beta-user{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:14px 15px;margin-bottom:10px}.beta-user-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.beta-user-email{font-size:13px;font-weight:600;overflow-wrap:anywhere}.beta-user-meta{font-size:10px;color:var(--paper-dim);margin-top:4px;font-family:'IBM Plex Mono',monospace}.access-pill{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:.03em;padding:4px 9px;border-radius:999px;white-space:nowrap}.access-active{background:var(--moss-bg);color:#AABC87}.access-suspended{background:var(--oxide-bg);color:#C4AF9E}.access-expired{background:var(--terracotta-bg);color:var(--terracotta)}.beta-user-controls{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.beta-user-controls input{min-width:145px;flex:1;background:var(--ink);border:1px solid var(--line);color:var(--paper);padding:7px 9px;border-radius:7px;font-size:12px}.admin-message{font-size:12px;line-height:1.45;color:var(--paper-dim);min-height:18px;margin:8px 1px 14px}.admin-message.error{color:var(--terracotta)}.admin-message.success{color:#AABC87}
 button,input,select{font:inherit}
 .app{
   width:100%;max-width:520px;min-height:100vh;display:flex;flex-direction:column;
@@ -48,6 +50,7 @@ header .month{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacin
 nav.tabs{position:fixed;z-index:20;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;display:flex;padding:7px 8px max(7px,env(safe-area-inset-bottom));border-top:1px solid var(--line);gap:2px;overflow-x:auto;scrollbar-width:none;background:rgba(11,32,54,.96);backdrop-filter:blur(14px)}
 nav.tabs::-webkit-scrollbar{display:none}
 nav.tabs button{flex:1;min-width:58px;background:none;border:none;color:var(--paper-dim);font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:.01em;padding:6px 2px 5px;cursor:pointer;border-radius:10px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:4px}
+nav.tabs button[hidden]{display:none}
 nav.tabs button::before{content:attr(data-icon);font-size:17px;line-height:1;filter:grayscale(1);opacity:.72}
 nav.tabs button.active{color:var(--cream);background:rgba(244,239,229,.09)}
 nav.tabs button.active::before{filter:none;opacity:1}
@@ -168,6 +171,7 @@ section{display:none}.active-section{display:block}
   <button class="tab-btn" data-tab="colaboradores" data-icon="♙">Equipo</button>
   <button class="tab-btn" data-tab="equipo" data-icon="◇">Gear</button>
   <button class="tab-btn" data-tab="config" data-icon="⚙">Config</button>
+  <button class="tab-btn" id="admin-tab-button" data-tab="admin" data-icon="♛" hidden>Admin</button>
 </nav>
 
 <main>
@@ -266,6 +270,31 @@ section{display:none}.active-section{display:block}
   </div>
 </section>
 
+<section id="tab-admin">
+  <div class="admin-hero">
+    <div class="summary-kicker">Panel privado</div>
+    <h2>Control de la beta</h2>
+    <p>Aprueba testers, suspende accesos y define vencimientos. Sólo las cuentas administradoras pueden consultar o modificar esta lista.</p>
+  </div>
+  <div class="admin-stats">
+    <div class="admin-stat"><strong id="admin-total">0</strong><span>Total</span></div>
+    <div class="admin-stat"><strong id="admin-active">0</strong><span>Activos</span></div>
+    <div class="admin-stat"><strong id="admin-expiring">0</strong><span>Vencen pronto</span></div>
+  </div>
+  <div class="section-title">Aprobar usuario</div>
+  <form class="mini-form" id="admin-user-form">
+    <input type="email" id="admin-email" placeholder="correo@gmail.com" autocomplete="off" required>
+    <div class="mini-form-row">
+      <select id="admin-role" aria-label="Rol del usuario"><option value="tester">Beta tester</option><option value="admin">Administrador</option></select>
+      <input type="date" id="admin-expires" aria-label="Fecha de vencimiento">
+    </div>
+    <button class="btn btn-brass btn-block" type="submit">Aprobar acceso</button>
+  </form>
+  <div class="admin-message" id="admin-message" aria-live="polite"></div>
+  <div class="section-title">Beta testers</div>
+  <div id="admin-users"><div class="empty">Cargando accesos…</div></div>
+</section>
+
 </main>
 </div>
 
@@ -319,6 +348,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('main>section').forEach(s=>s.classList.remove('active-section'));
   btn.classList.add('active');document.getElementById('tab-'+btn.dataset.tab).classList.add('active-section');renderAll();
+  if(btn.dataset.tab==='admin') cargarBetaUsers();
 }));
 
 function totalPendiente(c){return (c.proyectos||[]).filter(p=>p.estado==='pendiente').reduce((s,p)=>s+Number(p.monto||0),0)}
@@ -521,6 +551,99 @@ const titoApp=document.getElementById('tito-app');
 const supabaseConfig=window.TITO_SUPABASE_CONFIG;
 let supabaseClient=null;
 let localAppStarted=false;
+let betaUsers=[];
+
+function adminMessage(message='',type=''){
+  const el=document.getElementById('admin-message');
+  el.textContent=message;el.className='admin-message'+(type?' '+type:'');
+}
+
+function betaAccessState(user){
+  const expired=Boolean(user.expires_at)&&new Date(user.expires_at).getTime()<=Date.now();
+  if(expired)return {label:'Vencido',css:'access-expired'};
+  if(user.active===true)return {label:'Activo',css:'access-active'};
+  return {label:'Suspendido',css:'access-suspended'};
+}
+
+function renderBetaUsers(){
+  const now=Date.now(),week=now+7*86400000;
+  const active=betaUsers.filter(u=>u.active===true&&(!u.expires_at||new Date(u.expires_at).getTime()>now));
+  const expiring=active.filter(u=>{const x=u.expires_at?new Date(u.expires_at).getTime():0;return x>now&&x<=week});
+  document.getElementById('admin-total').textContent=betaUsers.length;
+  document.getElementById('admin-active').textContent=active.length;
+  document.getElementById('admin-expiring').textContent=expiring.length;
+  const host=document.getElementById('admin-users');
+  if(!betaUsers.length){host.innerHTML='<div class="empty">Todavía no hay accesos registrados.</div>';return;}
+  const ownEmail=String(window.titoAccess?.user?.email||'').toLowerCase();
+  host.innerHTML=betaUsers.map(user=>{
+    const state=betaAccessState(user),isSelf=String(user.email).toLowerCase()===ownEmail;
+    const expires=user.expires_at?String(user.expires_at).slice(0,10):'';
+    const created=user.created_at?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(user.created_at)):'—';
+    return `<article class="beta-user" data-user-id="${esc(user.id)}">
+      <div class="beta-user-head"><div><div class="beta-user-email">${esc(user.email)}</div><div class="beta-user-meta">${esc(user.role||'tester')} · desde ${esc(created)}${isSelf?' · tú':''}</div></div><span class="access-pill ${state.css}">${state.label}</span></div>
+      <div class="beta-user-controls">
+        <input type="date" data-expiry-input value="${esc(expires)}" aria-label="Vencimiento de ${esc(user.email)}">
+        <button class="btn btn-ghost btn-sm" type="button" data-admin-action="save-expiry">Guardar fecha</button>
+        ${expires?'<button class="btn btn-ghost btn-sm" type="button" data-admin-action="clear-expiry">Sin vencimiento</button>':''}
+        <button class="btn ${user.active?'btn-danger':'btn-brass'} btn-sm" type="button" data-admin-action="toggle-active" ${isSelf?'disabled title="No puedes suspender tu propia cuenta"':''}>${user.active?'Suspender':'Activar'}</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-admin-action="toggle-role" ${isSelf?'disabled title="No puedes cambiar tu propio rol"':''}>${user.role==='admin'?'Hacer tester':'Hacer admin'}</button>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+async function cargarBetaUsers(){
+  if(!window.titoAccess?.isAdmin)return;
+  document.getElementById('admin-users').innerHTML='<div class="empty">Cargando accesos…</div>';
+  const {data,error}=await supabaseClient.from('beta_users').select('id,email,active,expires_at,role,created_at').order('created_at',{ascending:false});
+  if(error){adminMessage('No se pudo cargar la lista: '+error.message,'error');document.getElementById('admin-users').innerHTML='<div class="empty">No se pudo cargar la lista.</div>';return;}
+  betaUsers=Array.isArray(data)?data:[];adminMessage();renderBetaUsers();
+}
+
+async function guardarBetaUser(event){
+  event.preventDefault();
+  if(!window.titoAccess?.isAdmin)return;
+  const email=document.getElementById('admin-email').value.trim().toLowerCase();
+  const role=document.getElementById('admin-role').value;
+  const date=document.getElementById('admin-expires').value;
+  const expires_at=date?new Date(date+'T23:59:59').toISOString():null;
+  if(!email)return;
+  adminMessage('Guardando acceso…');
+  const {error}=await supabaseClient.from('beta_users').insert({email,active:true,role,expires_at});
+  if(error){
+    const message=error.code==='23505'?'Ese correo ya está registrado.':'No se pudo aprobar el acceso: '+error.message;
+    adminMessage(message,'error');return;
+  }
+  event.target.reset();await cargarBetaUsers();adminMessage('Acceso aprobado correctamente.','success');
+}
+
+async function actualizarBetaUser(id,changes,successMessage){
+  const current=betaUsers.find(u=>String(u.id)===String(id));
+  if(!current||!window.titoAccess?.isAdmin)return;
+  const ownEmail=String(window.titoAccess.user.email||'').toLowerCase();
+  if(String(current.email).toLowerCase()===ownEmail&&('active' in changes||'role' in changes)){
+    adminMessage('Por seguridad no puedes suspender ni cambiar el rol de tu propia cuenta.','error');return;
+  }
+  adminMessage('Guardando cambio…');
+  const {error}=await supabaseClient.from('beta_users').update(changes).eq('id',id);
+  if(error){adminMessage('No se pudo guardar el cambio: '+error.message,'error');return;}
+  await cargarBetaUsers();adminMessage(successMessage,'success');
+}
+
+async function adminUserAction(event){
+  const button=event.target.closest('[data-admin-action]');if(!button)return;
+  const card=button.closest('[data-user-id]'),id=card?.dataset.userId;
+  const user=betaUsers.find(u=>String(u.id)===String(id));if(!user)return;
+  const action=button.dataset.adminAction;
+  if(action==='toggle-active')await actualizarBetaUser(id,{active:!user.active},user.active?'Acceso suspendido.':'Acceso activado.');
+  if(action==='toggle-role')await actualizarBetaUser(id,{role:user.role==='admin'?'tester':'admin'},'Rol actualizado.');
+  if(action==='clear-expiry')await actualizarBetaUser(id,{expires_at:null},'Vencimiento eliminado.');
+  if(action==='save-expiry'){
+    const date=card.querySelector('[data-expiry-input]').value;
+    const expires_at=date?new Date(date+'T23:59:59').toISOString():null;
+    await actualizarBetaUser(id,{expires_at},date?'Vencimiento actualizado.':'Vencimiento eliminado.');
+  }
+}
 
 function setAuthState(state,message=''){
   authStatus.textContent=message;
@@ -554,6 +677,7 @@ async function cerrarSesion(){
 function iniciarAppLocal(access){
   window.titoAccess=Object.freeze({user:access.user,role:access.role,isAdmin:access.role==='admin'});
   document.documentElement.dataset.titoRole=access.role;
+  document.getElementById('admin-tab-button').hidden=!window.titoAccess.isAdmin;
   document.getElementById('account-email').textContent=access.user.email||'';
   document.getElementById('account-role').textContent=access.role==='admin'?'Admin':'Beta';
   if(!localAppStarted){
@@ -616,6 +740,8 @@ authGoogle.addEventListener('click',async()=>{
 });
 authLogout.addEventListener('click',cerrarSesion);
 document.getElementById('account-logout').addEventListener('click',cerrarSesion);
+document.getElementById('admin-user-form').addEventListener('submit',guardarBetaUser);
+document.getElementById('admin-users').addEventListener('click',adminUserAction);
 iniciarAuth();
 
 
@@ -633,3 +759,4 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
 </script>
 </body>
 </html>
+
