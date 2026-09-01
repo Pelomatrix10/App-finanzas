@@ -1,9 +1,10 @@
-const CACHE_NAME = "tito-github-v4";
+const CACHE_NAME = "tito-github-v5-auth";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
   BASE,
   BASE + "index.html",
+  BASE + "supabase-config.js",
   BASE + "manifest.json",
   BASE + "icons/icon-192.png",
   BASE + "icons/icon-512.png",
@@ -37,6 +38,8 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.origin !== self.location.origin) return;
 
   event.respondWith(
     fetch(event.request)

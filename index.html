@@ -25,6 +25,12 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--ink);color:var(--paper)}
 body{font-family:'Inter',sans-serif;display:flex;justify-content:center}
+.auth-shell{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(700px 420px at 50% 10%,rgba(110,128,81,.2),transparent 65%),var(--ink)}
+.auth-shell[hidden]{display:none}.auth-card{width:100%;max-width:400px;background:var(--ink-2);border:1px solid var(--line);border-radius:24px;padding:30px 24px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.auth-logo{width:92px;height:74px;object-fit:cover;border-radius:13px;margin-bottom:18px}.auth-kicker{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);margin-bottom:9px}
+.auth-card h2{font-family:'Anton',sans-serif;font-size:34px;font-weight:400;line-height:1;margin:0 0 10px}.auth-card p{font-size:13px;line-height:1.55;color:var(--paper-dim);margin:0 auto 20px;max-width:310px}.auth-status{min-height:20px;margin-top:14px!important;font-size:12px!important;color:var(--terracotta)!important}
+.auth-google{display:flex;align-items:center;justify-content:center;gap:10px}.auth-google svg{width:18px;height:18px;flex:none}.app[hidden]{display:none}
+.account-card{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:18px}.account-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.account-email{font-size:13px;font-weight:600;overflow-wrap:anywhere}.role-pill{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--moss);background:var(--moss-bg);padding:5px 8px;border-radius:999px;white-space:nowrap}.account-actions{margin-top:12px}
 button,input,select{font:inherit}
 .app{
   width:100%;max-width:520px;min-height:100vh;display:flex;flex-direction:column;
@@ -131,7 +137,21 @@ section{display:none}.active-section{display:block}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="auth-shell" id="auth-shell" aria-live="polite">
+  <div class="auth-card">
+    <img class="auth-logo" src="./assets/tito-logo-master.webp" alt="TiTo">
+    <div class="auth-kicker">Beta privada</div>
+    <h2 id="auth-title">Tu estudio, bajo control</h2>
+    <p id="auth-copy">Inicia sesión con el correo invitado a la beta de TiTo.</p>
+    <button class="btn btn-brass btn-block auth-google" id="auth-google" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.4-.18-2.07H12v3.91h5.38a4.6 4.6 0 0 1-2 3.02v2.54h3.24c1.9-1.75 2.98-4.32 2.98-7.4Z"/><path fill="#34A853" d="M12 22c2.7 0 4.97-.9 6.62-2.42l-3.24-2.54c-.9.6-2.05.96-3.38.96-2.61 0-4.82-1.76-5.61-4.13H3.04v2.62A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.39 13.87A6 6 0 0 1 6.08 12c0-.65.11-1.28.31-1.87V7.51H3.04A10 10 0 0 0 2 12c0 1.61.39 3.14 1.04 4.49l3.35-2.62Z"/><path fill="#EA4335" d="M12 6c1.47 0 2.79.51 3.83 1.5l2.87-2.87A9.64 9.64 0 0 0 12 2a10 10 0 0 0-8.96 5.51l3.35 2.62C7.18 7.76 9.39 6 12 6Z"/></svg>
+      Continuar con Google
+    </button>
+    <button class="btn btn-ghost btn-block" id="auth-logout" type="button" hidden>Cerrar sesión</button>
+    <p class="auth-status" id="auth-status"></p>
+  </div>
+</div>
+<div class="app" id="tito-app" hidden>
 <header>
   <div class="brand-lockup">
     <div class="eyebrow"><span class="dot"></span> Finanzas del estudio</div>
@@ -224,6 +244,11 @@ section{display:none}.active-section{display:block}
 </section>
 
 <section id="tab-config">
+  <div class="section-title">Tu cuenta</div>
+  <div class="account-card">
+    <div class="account-top"><div class="account-email" id="account-email"></div><div class="role-pill" id="account-role"></div></div>
+    <div class="account-actions"><button class="btn btn-ghost btn-sm" id="account-logout" type="button">Cerrar sesión</button></div>
+  </div>
   <div class="narrativa">
     Aquí puedes guardar una copia completa de tus datos o restaurarla después. Clientes, proyectos, colaboradores, pagos y gear viajan juntos en un solo archivo.
   </div>
@@ -244,24 +269,40 @@ section{display:none}.active-section{display:block}
 </main>
 </div>
 
+<script src="./supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const STORAGE_KEY='estudio_app_completa_v1';
 
 function emptyData(){return {clientes:[],colaboradores:[],equipo:[]}}
-let saved=null;
-try{saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch(e){}
-let data=saved||emptyData();
-let clientes=Array.isArray(data.clientes)?data.clientes:[];
-let colaboradores=Array.isArray(data.colaboradores)?data.colaboradores:[];
-let equipo=Array.isArray(data.equipo)?data.equipo:[];
+let clientes=[];
+let colaboradores=[];
+let equipo=[];
+
+function cargarDatosLocales(){
+  let saved=null;
+  try{saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch(e){}
+  const data=saved||emptyData();
+  clientes=Array.isArray(data.clientes)?data.clientes:[];
+  colaboradores=Array.isArray(data.colaboradores)?data.colaboradores:[];
+  equipo=Array.isArray(data.equipo)?data.equipo:[];
+}
 
 function guardar(){localStorage.setItem(STORAGE_KEY,JSON.stringify({clientes,colaboradores,equipo}))}
 function nextId(arr){return Math.max(0,...arr.map(x=>Number(x.id)||0))+1}
-let nextClienteId=nextId(clientes);
-let nextProyectoId=nextId(clientes.flatMap(c=>c.proyectos||[]));
-let nextColabId=nextId(colaboradores);
-let nextPagoId=nextId(colaboradores.flatMap(c=>c.pagos||[]));
-let nextEquipoId=nextId(equipo);
+let nextClienteId=1;
+let nextProyectoId=1;
+let nextColabId=1;
+let nextPagoId=1;
+let nextEquipoId=1;
+
+function recalcularIds(){
+  nextClienteId=nextId(clientes);
+  nextProyectoId=nextId(clientes.flatMap(c=>c.proyectos||[]));
+  nextColabId=nextId(colaboradores);
+  nextPagoId=nextId(colaboradores.flatMap(c=>c.pagos||[]));
+  nextEquipoId=nextId(equipo);
+}
 
 const fmt=n=>'S/ '+Number(n||0).toLocaleString('es-PE',{maximumFractionDigits:2});
 const hoy=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
@@ -469,7 +510,113 @@ Object.assign(window,{exportarBackup,importarBackup});
 
 function renderAll(){renderClientes();renderColaboradores();renderCobros();renderEquipo();renderResumen()}
 document.getElementById('header-month').textContent=new Intl.DateTimeFormat('es-PE',{month:'long',year:'numeric'}).format(new Date());
-renderAll();
+
+const authShell=document.getElementById('auth-shell');
+const authTitle=document.getElementById('auth-title');
+const authCopy=document.getElementById('auth-copy');
+const authStatus=document.getElementById('auth-status');
+const authGoogle=document.getElementById('auth-google');
+const authLogout=document.getElementById('auth-logout');
+const titoApp=document.getElementById('tito-app');
+const supabaseConfig=window.TITO_SUPABASE_CONFIG;
+let supabaseClient=null;
+let localAppStarted=false;
+
+function setAuthState(state,message=''){
+  authStatus.textContent=message;
+  authGoogle.disabled=false;
+  authGoogle.hidden=state!=='login';
+  authLogout.hidden=state!=='denied';
+  if(state==='checking'){
+    authTitle.textContent='Verificando tu acceso';
+    authCopy.textContent='Un momento, TiTo está revisando tu invitación.';
+  }else if(state==='denied'){
+    authTitle.textContent='Acceso no disponible';
+    authCopy.textContent='Este correo no tiene una invitación activa para la beta de TiTo.';
+  }else if(state==='error'){
+    authTitle.textContent='No pudimos conectar';
+    authCopy.textContent='Revisa tu conexión e inténtalo de nuevo.';
+    authGoogle.hidden=false;
+  }else if(state==='login'){
+    authTitle.textContent='Tu estudio, bajo control';
+    authCopy.textContent='Inicia sesión con el correo invitado a la beta de TiTo.';
+  }
+}
+
+async function cerrarSesion(){
+  if(supabaseClient) await supabaseClient.auth.signOut();
+  window.titoAccess=null;
+  titoApp.hidden=true;
+  authShell.hidden=false;
+  setAuthState('login');
+}
+
+function iniciarAppLocal(access){
+  window.titoAccess=Object.freeze({user:access.user,role:access.role,isAdmin:access.role==='admin'});
+  document.documentElement.dataset.titoRole=access.role;
+  document.getElementById('account-email').textContent=access.user.email||'';
+  document.getElementById('account-role').textContent=access.role==='admin'?'Admin':'Beta';
+  if(!localAppStarted){
+    cargarDatosLocales();
+    recalcularIds();
+    localAppStarted=true;
+  }
+  renderAll();
+  authShell.hidden=true;
+  titoApp.hidden=false;
+}
+
+async function comprobarAcceso(session){
+  if(!session?.user?.email){setAuthState('login');return;}
+  setAuthState('checking');
+  const email=session.user.email.trim().toLowerCase();
+  const {data:access,error}=await supabaseClient.from('beta_users').select('role,active,expires_at').eq('email',email).maybeSingle();
+  if(error){
+    console.error('No se pudo comprobar beta_users:',error.message);
+    setAuthState('error','No se pudo validar la invitación. Intenta nuevamente.');
+    return;
+  }
+  const expiresAt=access?.expires_at?new Date(access.expires_at).getTime():null;
+  const expired=expiresAt!==null&&(!Number.isFinite(expiresAt)||expiresAt<=Date.now());
+  if(!access||access.active!==true||expired){
+    const reason=!access?'Tu correo aún no está en la lista de la beta.':access.active!==true?'Tu acceso está suspendido.':'Tu invitación venció.';
+    setAuthState('denied',reason);
+    return;
+  }
+  iniciarAppLocal({user:session.user,role:String(access.role||'user').toLowerCase()});
+}
+
+async function iniciarAuth(){
+  try{
+    if(!supabaseConfig?.url||!supabaseConfig?.publishableKey||!window.supabase?.createClient) throw new Error('Configuración pública incompleta');
+    supabaseClient=window.supabase.createClient(supabaseConfig.url,supabaseConfig.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    const {data:{session},error}=await supabaseClient.auth.getSession();
+    if(error) throw error;
+    await comprobarAcceso(session);
+    supabaseClient.auth.onAuthStateChange((event,nextSession)=>{
+      if(event==='SIGNED_OUT'){
+        window.titoAccess=null;titoApp.hidden=true;authShell.hidden=false;setAuthState('login');
+      }else if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||event==='USER_UPDATED'){
+        setTimeout(()=>comprobarAcceso(nextSession),0);
+      }
+    });
+  }catch(error){
+    console.error('No se pudo iniciar Supabase Auth:',error.message);
+    setAuthState('error','No se pudo iniciar el acceso seguro.');
+  }
+}
+
+authGoogle.addEventListener('click',async()=>{
+  if(!supabaseClient){await iniciarAuth();if(!supabaseClient)return;}
+  authGoogle.disabled=true;
+  authStatus.textContent='Abriendo Google…';
+  const redirectTo=location.origin+location.pathname;
+  const {error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
+  if(error){authGoogle.disabled=false;setAuthState('error',error.message);}
+});
+authLogout.addEventListener('click',cerrarSesion);
+document.getElementById('account-logout').addEventListener('click',cerrarSesion);
+iniciarAuth();
 
 
 document.addEventListener('focusout', (event)=>{
