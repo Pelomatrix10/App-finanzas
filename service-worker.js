@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v9-month-history";
+const CACHE_NAME = "tito-github-v10-month-movements";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
@@ -7,6 +7,7 @@ const APP_SHELL = [
   BASE + "supabase-config.js",
   BASE + "role-ui.js",
   BASE + "month-history.js",
+  BASE + "summary-movements.js",
   BASE + "manifest.json",
   BASE + "icons/icon-192.png",
   BASE + "icons/icon-512.png",
@@ -44,11 +45,11 @@ async function enhanceHtml(response){
   if(!type.includes("text/html")) return response;
 
   let html = await response.text();
-  if(!html.includes('src="./role-ui.js"') && !html.includes('src="role-ui.js"')){
-    html = html.includes("</body>") ? html.replace("</body>", '<script src="./role-ui.js"></script></body>') : html + '<script src="./role-ui.js"></script>';
-  }
-  if(!html.includes('src="./month-history.js"') && !html.includes('src="month-history.js"')){
-    html = html.includes("</body>") ? html.replace("</body>", '<script src="./month-history.js"></script></body>') : html + '<script src="./month-history.js"></script>';
+  const scripts = ["role-ui.js","month-history.js","summary-movements.js"];
+  for(const script of scripts){
+    if(!html.includes(`src="./${script}"`) && !html.includes(`src="${script}"`)){
+      html = html.includes("</body>") ? html.replace("</body>", `<script src="./${script}"></script></body>`) : html + `<script src="./${script}"></script>`;
+    }
   }
 
   return new Response(html,{
