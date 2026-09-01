@@ -105,6 +105,9 @@ section{display:none}.active-section{display:block}
 .summary-kicker{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--terracotta);margin-bottom:8px}
 .summary-intro h2{font-family:'Bebas Neue',sans-serif;font-size:29px;font-weight:400;line-height:1.05;margin:0 0 8px;letter-spacing:.01em}
 .summary-intro p{font-size:13px;color:var(--paper-dim);line-height:1.55;margin:0;max-width:390px}
+.month-control{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(244,239,229,.07);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:15px}
+.month-control label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--paper-dim)}
+.month-control select{max-width:190px;background:var(--cream);color:var(--ink);border:0;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:600}
 .balance-card{position:relative;overflow:hidden;background:var(--cream);color:var(--ink);border-radius:22px;padding:21px 20px;margin-bottom:13px;box-shadow:0 18px 45px rgba(0,0,0,.16)}
 .balance-card::after{content:'';position:absolute;width:170px;height:170px;border-radius:50%;right:-72px;top:-91px;background:var(--moss);opacity:.17}
 .balance-label,.summary-card-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;opacity:.62}
@@ -193,17 +196,18 @@ section{display:none}.active-section{display:block}
     <div class="summary-kicker">Resumen del mes</div>
     <h2>Así va tu estudio</h2>
     <p id="narrativa-resumen"></p>
+    <div class="month-control"><label for="resumen-mes">Consultar mes</label><select id="resumen-mes" aria-label="Mes del resumen"></select></div>
   </div>
   <div class="balance-card">
-    <div class="balance-label">Disponible proyectado</div>
+    <div class="balance-label" id="st-label-balance">Resultado del mes</div>
     <div class="balance-value" id="st-balance">S/ 0</div>
-    <div class="balance-note">Lo cobrado este mes + lo pendiente, menos tus pagos pendientes.</div>
+    <div class="balance-note" id="st-note-balance">Ingresos cobrados menos pagos realizados al equipo.</div>
   </div>
   <div class="summary-grid">
-    <div class="summary-card olive"><div class="summary-card-label">Cobrado este mes</div><div class="summary-card-value" id="st-cobrado">S/ 0</div></div>
-    <div class="summary-card terracotta"><div class="summary-card-label">Por cobrar</div><div class="summary-card-value" id="st-pendiente">S/ 0</div></div>
-    <div class="summary-card brown"><div class="summary-card-label">Por pagar</div><div class="summary-card-value" id="st-debes">S/ 0</div></div>
-    <div class="summary-card taupe"><div class="summary-card-label">Invertido en gear</div><div class="summary-card-value" id="st-equipo">S/ 0</div></div>
+    <div class="summary-card olive"><div class="summary-card-label" id="st-label-cobrado">Cobrado en el mes</div><div class="summary-card-value" id="st-cobrado">S/ 0</div></div>
+    <div class="summary-card terracotta"><div class="summary-card-label">Proyectos cobrados</div><div class="summary-card-value" id="st-proyectos">0</div></div>
+    <div class="summary-card brown"><div class="summary-card-label">Pagado al equipo</div><div class="summary-card-value" id="st-pagado-equipo">S/ 0</div></div>
+    <div class="summary-card taupe"><div class="summary-card-label">Por cobrar hoy</div><div class="summary-card-value" id="st-pendiente">S/ 0</div></div>
   </div>
   <div class="gato-card">
     <div class="cat-visual"><img class="cat-image" id="gato-image" src="./assets/tito-gato-cobro-00.webp" alt="Gato de Cobro al 0%"></div>
@@ -260,8 +264,12 @@ let nextPagoId=nextId(colaboradores.flatMap(c=>c.pagos||[]));
 let nextEquipoId=nextId(equipo);
 
 const fmt=n=>'S/ '+Number(n||0).toLocaleString('es-PE',{maximumFractionDigits:2});
-const hoy=()=>new Date().toISOString().slice(0,10);
+const hoy=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
 const mesActual=()=>hoy().slice(0,7);
+let resumenMes=mesActual();
+const fechaCreacion=x=>x.fechaCreacion||x.fecha||hoy();
+const fechaPago=x=>x.fechaPago||(x.estado==='pagado'?x.fecha||null:null);
+function nombreMes(mes){const [y,m]=mes.split('-').map(Number);return new Intl.DateTimeFormat('es-PE',{month:'long',year:'numeric'}).format(new Date(y,m-1,1))}
 function diasDesde(f){return Math.max(0,Math.floor((new Date(hoy())-new Date(f))/86400000))}
 function iniciales(n){return String(n||'').split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('').toUpperCase()}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
@@ -277,8 +285,8 @@ function totalFacturado(c){return (c.proyectos||[]).reduce((s,p)=>s+Number(p.mon
 function totalDebo(c){return (c.pagos||[]).filter(p=>p.estado==='pendiente').reduce((s,p)=>s+Number(p.monto||0),0)}
 function totalPagadoA(c){return (c.pagos||[]).filter(p=>p.estado==='pagado').reduce((s,p)=>s+Number(p.monto||0),0)}
 function totalEquipoInvertido(){return equipo.reduce((s,e)=>s+Number(e.monto||0),0)}
-function todosLosPendientes(){const out=[];clientes.forEach(c=>(c.proyectos||[]).forEach(p=>{if(p.estado==='pendiente')out.push({cliente:c,proyecto:p})}));return out.sort((a,b)=>diasDesde(b.proyecto.fecha)-diasDesde(a.proyecto.fecha))}
-function todosLosPagosPendientes(){const out=[];colaboradores.forEach(c=>(c.pagos||[]).forEach(p=>{if(p.estado==='pendiente')out.push({colaborador:c,pago:p})}));return out.sort((a,b)=>diasDesde(b.pago.fecha)-diasDesde(a.pago.fecha))}
+function todosLosPendientes(){const out=[];clientes.forEach(c=>(c.proyectos||[]).forEach(p=>{if(p.estado==='pendiente')out.push({cliente:c,proyecto:p})}));return out.sort((a,b)=>diasDesde(fechaCreacion(b.proyecto))-diasDesde(fechaCreacion(a.proyecto)))}
+function todosLosPagosPendientes(){const out=[];colaboradores.forEach(c=>(c.pagos||[]).forEach(p=>{if(p.estado==='pendiente')out.push({colaborador:c,pago:p})}));return out.sort((a,b)=>diasDesde(fechaCreacion(b.pago))-diasDesde(fechaCreacion(a.pago)))}
 
 function confirmDel(txt){return confirm(txt)}
 function promptText(label,current=''){const v=prompt(label,current);return v===null?null:v.trim()}
@@ -296,10 +304,10 @@ function editarCliente(id){const c=clientes.find(x=>x.id===id);if(!c)return;cons
 function eliminarCliente(id){const c=clientes.find(x=>x.id===id);if(!c)return;if(confirmDel(`¿Eliminar a ${c.nombre} y todos sus proyectos?`)){clientes=clientes.filter(x=>x.id!==id);guardar();renderAll()}}
 function toggleFrame(id){document.getElementById('frame-'+id)?.classList.toggle('open')}
 function mostrarFormProyecto(id){const el=document.getElementById('form-proy-'+id);el.style.display=el.style.display==='grid'?'none':'grid'}
-function guardarProyecto(cid){const c=clientes.find(x=>x.id===cid);const concepto=document.getElementById(`pr-concepto-${cid}`).value.trim();const monto=parseFloat(document.getElementById(`pr-monto-${cid}`).value);const estado=document.getElementById(`pr-estado-${cid}`).value;if(!concepto||!monto)return alert('Completa concepto y monto.');c.proyectos=c.proyectos||[];c.proyectos.unshift({id:nextProyectoId++,concepto,monto,estado,fecha:hoy()});guardar();renderAll()}
-function editarProyecto(cid,pid){const c=clientes.find(x=>x.id===cid),p=c?.proyectos?.find(x=>x.id===pid);if(!p)return;const concepto=promptText('Concepto',p.concepto);if(concepto===null||!concepto)return;const monto=promptAmount('Monto (S/)',p.monto);if(monto===null)return;const estado=promptEstado(p.estado);if(estado===null)return;p.concepto=concepto;p.monto=monto;p.estado=estado;guardar();renderAll()}
+function guardarProyecto(cid){const c=clientes.find(x=>x.id===cid);const concepto=document.getElementById(`pr-concepto-${cid}`).value.trim();const monto=parseFloat(document.getElementById(`pr-monto-${cid}`).value);const estado=document.getElementById(`pr-estado-${cid}`).value;if(!concepto||!monto)return alert('Completa concepto y monto.');const fecha=hoy();c.proyectos=c.proyectos||[];c.proyectos.unshift({id:nextProyectoId++,concepto,monto,estado,fecha,fechaCreacion:fecha,fechaPago:estado==='pagado'?fecha:null});guardar();renderAll()}
+function editarProyecto(cid,pid){const c=clientes.find(x=>x.id===cid),p=c?.proyectos?.find(x=>x.id===pid);if(!p)return;const concepto=promptText('Concepto',p.concepto);if(concepto===null||!concepto)return;const monto=promptAmount('Monto (S/)',p.monto);if(monto===null)return;const estadoAnterior=p.estado,estado=promptEstado(p.estado);if(estado===null)return;p.fechaCreacion=fechaCreacion(p);p.concepto=concepto;p.monto=monto;p.estado=estado;if(estado==='pagado'&&estadoAnterior!=='pagado'){p.fechaPago=hoy();p.fecha=p.fechaPago}else if(estado==='pendiente'){p.fechaPago=null}guardar();renderAll()}
 function eliminarProyecto(cid,pid){const c=clientes.find(x=>x.id===cid),p=c?.proyectos?.find(x=>x.id===pid);if(!p)return;if(confirmDel(`¿Eliminar el proyecto “${p.concepto}”?`)){c.proyectos=c.proyectos.filter(x=>x.id!==pid);guardar();renderAll()}}
-function marcarCobrado(cid,pid){const p=clientes.find(x=>x.id===cid)?.proyectos?.find(x=>x.id===pid);if(!p)return;p.estado='pagado';p.fecha=hoy();guardar();renderAll()}
+function marcarCobrado(cid,pid){const p=clientes.find(x=>x.id===cid)?.proyectos?.find(x=>x.id===pid);if(!p)return;p.fechaCreacion=fechaCreacion(p);p.estado='pagado';p.fechaPago=hoy();p.fecha=p.fechaPago;guardar();renderAll()}
 
 function toggleFormColab(show){document.getElementById('form-nuevo-colab').style.display=show?'grid':'none'}
 document.getElementById('btn-nuevo-colab').onclick=()=>toggleFormColab(true);
@@ -308,10 +316,10 @@ function editarColaborador(id){const c=colaboradores.find(x=>x.id===id);if(!c)re
 function eliminarColaborador(id){const c=colaboradores.find(x=>x.id===id);if(!c)return;if(confirmDel(`¿Eliminar a ${c.nombre} y todos sus pagos?`)){colaboradores=colaboradores.filter(x=>x.id!==id);guardar();renderAll()}}
 function toggleFrameColab(id){document.getElementById('frame-col-'+id)?.classList.toggle('open')}
 function mostrarFormPago(id){const el=document.getElementById('form-pago-'+id);el.style.display=el.style.display==='grid'?'none':'grid'}
-function guardarPago(cid){const c=colaboradores.find(x=>x.id===cid);const concepto=document.getElementById(`pg-concepto-${cid}`).value.trim();const monto=parseFloat(document.getElementById(`pg-monto-${cid}`).value);const estado=document.getElementById(`pg-estado-${cid}`).value;if(!concepto||!monto)return alert('Completa concepto y monto.');c.pagos=c.pagos||[];c.pagos.unshift({id:nextPagoId++,concepto,monto,estado,fecha:hoy()});guardar();renderAll()}
-function editarPago(cid,pid){const c=colaboradores.find(x=>x.id===cid),p=c?.pagos?.find(x=>x.id===pid);if(!p)return;const concepto=promptText('Concepto',p.concepto);if(concepto===null||!concepto)return;const monto=promptAmount('Monto (S/)',p.monto);if(monto===null)return;const estado=promptEstado(p.estado);if(estado===null)return;p.concepto=concepto;p.monto=monto;p.estado=estado;guardar();renderAll()}
+function guardarPago(cid){const c=colaboradores.find(x=>x.id===cid);const concepto=document.getElementById(`pg-concepto-${cid}`).value.trim();const monto=parseFloat(document.getElementById(`pg-monto-${cid}`).value);const estado=document.getElementById(`pg-estado-${cid}`).value;if(!concepto||!monto)return alert('Completa concepto y monto.');const fecha=hoy();c.pagos=c.pagos||[];c.pagos.unshift({id:nextPagoId++,concepto,monto,estado,fecha,fechaCreacion:fecha,fechaPago:estado==='pagado'?fecha:null});guardar();renderAll()}
+function editarPago(cid,pid){const c=colaboradores.find(x=>x.id===cid),p=c?.pagos?.find(x=>x.id===pid);if(!p)return;const concepto=promptText('Concepto',p.concepto);if(concepto===null||!concepto)return;const monto=promptAmount('Monto (S/)',p.monto);if(monto===null)return;const estadoAnterior=p.estado,estado=promptEstado(p.estado);if(estado===null)return;p.fechaCreacion=fechaCreacion(p);p.concepto=concepto;p.monto=monto;p.estado=estado;if(estado==='pagado'&&estadoAnterior!=='pagado'){p.fechaPago=hoy();p.fecha=p.fechaPago}else if(estado==='pendiente'){p.fechaPago=null}guardar();renderAll()}
 function eliminarPago(cid,pid){const c=colaboradores.find(x=>x.id===cid),p=c?.pagos?.find(x=>x.id===pid);if(!p)return;if(confirmDel(`¿Eliminar el pago “${p.concepto}”?`)){c.pagos=c.pagos.filter(x=>x.id!==pid);guardar();renderAll()}}
-function marcarPagado(cid,pid){const p=colaboradores.find(x=>x.id===cid)?.pagos?.find(x=>x.id===pid);if(!p)return;p.estado='pagado';p.fecha=hoy();guardar();renderAll()}
+function marcarPagado(cid,pid){const p=colaboradores.find(x=>x.id===cid)?.pagos?.find(x=>x.id===pid);if(!p)return;p.fechaCreacion=fechaCreacion(p);p.estado='pagado';p.fechaPago=hoy();p.fecha=p.fechaPago;guardar();renderAll()}
 
 function toggleFormEquipo(show){document.getElementById('form-nuevo-equipo').style.display=show?'grid':'none'}
 document.getElementById('btn-nuevo-equipo').onclick=()=>toggleFormEquipo(true);
@@ -355,9 +363,9 @@ function renderCobros(){
  const pendientes=todosLosPendientes(),pagos=todosLosPagosPendientes(),nar=document.getElementById('narrativa-cobros');
  nar.innerHTML=!pendientes.length&&!pagos.length?'No tienes cobros ni pagos pendientes. Todo al día.':`${pendientes.length?`Tienes <span class="num pend">${pendientes.length}</span> cobro${pendientes.length===1?'':'s'} por cobrar. `:''}${pagos.length?`Debes <span class="num debe">${pagos.length}</span> pago${pagos.length===1?'':'s'} a tu equipo.`:''}`;
  const cc=document.getElementById('lista-cobros');cc.innerHTML=pendientes.length?'':'<div class="empty">Nadie te debe nada por ahora.</div>';
- pendientes.forEach(({cliente,proyecto})=>{const d=diasDesde(proyecto.fecha),cl=d>=14?'tc-hot':d>=7?'tc-warn':'tc-fresh';cc.insertAdjacentHTML('beforeend',`<div class="cobro-row"><div class="cobro-left"><div class="cliente">${esc(cliente.nombre)}</div><div class="concepto">${esc(proyecto.concepto)}</div></div><div class="cobro-mid"><span class="timecode ${cl}">+${String(d).padStart(2,'0')}d</span></div><div class="cobro-right"><div class="cobro-monto">${fmt(proyecto.monto)}</div><button class="link-btn" onclick="marcarCobrado(${cliente.id},${proyecto.id})">marcar cobrado</button><div class="actions"><button class="link-btn" onclick="editarProyecto(${cliente.id},${proyecto.id})">editar</button><button class="link-btn danger" onclick="eliminarProyecto(${cliente.id},${proyecto.id})">eliminar</button></div></div></div>`)});
+ pendientes.forEach(({cliente,proyecto})=>{const d=diasDesde(fechaCreacion(proyecto)),cl=d>=14?'tc-hot':d>=7?'tc-warn':'tc-fresh';cc.insertAdjacentHTML('beforeend',`<div class="cobro-row"><div class="cobro-left"><div class="cliente">${esc(cliente.nombre)}</div><div class="concepto">${esc(proyecto.concepto)}</div></div><div class="cobro-mid"><span class="timecode ${cl}">+${String(d).padStart(2,'0')}d</span></div><div class="cobro-right"><div class="cobro-monto">${fmt(proyecto.monto)}</div><button class="link-btn" onclick="marcarCobrado(${cliente.id},${proyecto.id})">marcar cobrado</button><div class="actions"><button class="link-btn" onclick="editarProyecto(${cliente.id},${proyecto.id})">editar</button><button class="link-btn danger" onclick="eliminarProyecto(${cliente.id},${proyecto.id})">eliminar</button></div></div></div>`)});
  const cp=document.getElementById('lista-pagos');cp.innerHTML=pagos.length?'':'<div class="empty">No le debes nada a tu equipo por ahora.</div>';
- pagos.forEach(({colaborador,pago})=>{const d=diasDesde(pago.fecha),cl=d>=14?'tc-hot':d>=7?'tc-warn':'tc-fresh';cp.insertAdjacentHTML('beforeend',`<div class="cobro-row"><div class="cobro-left"><div class="cliente">${esc(colaborador.nombre)}</div><div class="concepto">${esc(pago.concepto)}</div></div><div class="cobro-mid"><span class="timecode ${cl}">+${String(d).padStart(2,'0')}d</span></div><div class="cobro-right"><div class="cobro-monto">${fmt(pago.monto)}</div><button class="link-btn" onclick="marcarPagado(${colaborador.id},${pago.id})">marcar pagado</button><div class="actions"><button class="link-btn" onclick="editarPago(${colaborador.id},${pago.id})">editar</button><button class="link-btn danger" onclick="eliminarPago(${colaborador.id},${pago.id})">eliminar</button></div></div></div>`)});
+ pagos.forEach(({colaborador,pago})=>{const d=diasDesde(fechaCreacion(pago)),cl=d>=14?'tc-hot':d>=7?'tc-warn':'tc-fresh';cp.insertAdjacentHTML('beforeend',`<div class="cobro-row"><div class="cobro-left"><div class="cliente">${esc(colaborador.nombre)}</div><div class="concepto">${esc(pago.concepto)}</div></div><div class="cobro-mid"><span class="timecode ${cl}">+${String(d).padStart(2,'0')}d</span></div><div class="cobro-right"><div class="cobro-monto">${fmt(pago.monto)}</div><button class="link-btn" onclick="marcarPagado(${colaborador.id},${pago.id})">marcar pagado</button><div class="actions"><button class="link-btn" onclick="editarPago(${colaborador.id},${pago.id})">editar</button><button class="link-btn danger" onclick="eliminarPago(${colaborador.id},${pago.id})">eliminar</button></div></div></div>`)});
 }
 
 function renderEquipo(){
@@ -369,10 +377,15 @@ function renderEquipo(){
 }
 
 function renderResumen(){
- const mes=mesActual(),cobrado=clientes.flatMap(c=>c.proyectos||[]).filter(p=>p.estado==='pagado'&&String(p.fecha||'').startsWith(mes)).reduce((s,p)=>s+Number(p.monto||0),0),pend=clientes.reduce((s,c)=>s+totalPendiente(c),0),debes=colaboradores.reduce((s,c)=>s+totalDebo(c),0),gear=totalEquipoInvertido(),bal=cobrado+pend-debes;
- document.getElementById('st-cobrado').textContent=fmt(cobrado);document.getElementById('st-pendiente').textContent=fmt(pend);document.getElementById('st-debes').textContent=fmt(debes);document.getElementById('st-equipo').textContent=fmt(gear);document.getElementById('st-balance').textContent=fmt(bal);
- document.getElementById('narrativa-resumen').textContent=pend?`Tienes ${fmt(pend)} esperando ser cobrados. TiTo te ayuda a mantenerlos a la vista.`:'Tus cobros están al día. Un buen momento para mirar cómo viene creciendo el estudio.';
- const proyectos=clientes.flatMap(c=>c.proyectos||[]),facturado=proyectos.reduce((s,p)=>s+Number(p.monto||0),0),cobradoTotal=proyectos.filter(p=>p.estado==='pagado').reduce((s,p)=>s+Number(p.monto||0),0),porcentaje=facturado?Math.round(cobradoTotal/facturado*100):0;
+ const proyectos=clientes.flatMap(c=>c.proyectos||[]),pagosEquipo=colaboradores.flatMap(c=>c.pagos||[]),meses=new Set([mesActual()]);
+ proyectos.forEach(p=>{const f=fechaPago(p);if(f)meses.add(String(f).slice(0,7))});pagosEquipo.forEach(p=>{const f=fechaPago(p);if(f)meses.add(String(f).slice(0,7))});
+ const selector=document.getElementById('resumen-mes'),opciones=[...meses].filter(Boolean).sort().reverse();if(!opciones.includes(resumenMes))resumenMes=mesActual();
+ selector.innerHTML=opciones.map(m=>`<option value="${m}" ${m===resumenMes?'selected':''}>${esc(nombreMes(m))}${m===mesActual()?' · actual':''}</option>`).join('');selector.onchange=()=>{resumenMes=selector.value;renderResumen()};
+ const cobradosMes=proyectos.filter(p=>p.estado==='pagado'&&String(fechaPago(p)||'').startsWith(resumenMes)),cobrado=cobradosMes.reduce((s,p)=>s+Number(p.monto||0),0),pagadoEquipoMes=pagosEquipo.filter(p=>p.estado==='pagado'&&String(fechaPago(p)||'').startsWith(resumenMes)).reduce((s,p)=>s+Number(p.monto||0),0),resultado=cobrado-pagadoEquipoMes,pend=clientes.reduce((s,c)=>s+totalPendiente(c),0),etiquetaMes=nombreMes(resumenMes);
+ document.getElementById('st-cobrado').textContent=fmt(cobrado);document.getElementById('st-proyectos').textContent=String(cobradosMes.length);document.getElementById('st-pagado-equipo').textContent=fmt(pagadoEquipoMes);document.getElementById('st-pendiente').textContent=fmt(pend);document.getElementById('st-balance').textContent=fmt(resultado);
+ document.getElementById('st-label-balance').textContent='Resultado · '+etiquetaMes;document.getElementById('st-label-cobrado').textContent='Cobrado · '+etiquetaMes;document.getElementById('st-note-balance').textContent='Ingresos cobrados menos pagos realizados al equipo durante el mes seleccionado.';
+ document.getElementById('narrativa-resumen').textContent=cobradosMes.length?`En ${etiquetaMes} cobraste ${fmt(cobrado)} en ${cobradosMes.length} proyecto${cobradosMes.length===1?'':'s'}.`:`En ${etiquetaMes} todavía no hay cobros registrados.`;
+ const facturado=proyectos.reduce((s,p)=>s+Number(p.monto||0),0),cobradoTotal=proyectos.filter(p=>p.estado==='pagado').reduce((s,p)=>s+Number(p.monto||0),0),porcentaje=facturado?Math.round(cobradoTotal/facturado*100):0;
  const estado=porcentaje>=100?'100':porcentaje>=75?'75':porcentaje>=50?'50':porcentaje>=25?'25':'00',estadoTexto={"00":"Inicio","25":"En curso","50":"A la mitad","75":"Casi listo","100":"Cobrado"}[estado];
  const gato=document.getElementById('gato-image');gato.src=`./assets/tito-gato-cobro-${estado}.webp`;gato.alt=`Gato de Cobro al ${porcentaje}%`;
  document.getElementById('gato-percent').textContent=porcentaje+'%';document.getElementById('gato-title').textContent=estadoTexto;document.getElementById('gato-progress-bar').style.width=porcentaje+'%';
