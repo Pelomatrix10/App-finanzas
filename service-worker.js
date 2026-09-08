@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v13-beta-welcome";
+const CACHE_NAME = "tito-github-v14-admin-profiles";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [

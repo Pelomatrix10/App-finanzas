@@ -32,7 +32,8 @@ body{font-family:'Inter',sans-serif;display:flex;justify-content:center}
 .auth-google{display:flex;align-items:center;justify-content:center;gap:10px}.auth-google svg{width:18px;height:18px;flex:none}.app[hidden]{display:none}
 .account-card{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-bottom:18px}.account-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.account-email{font-size:13px;font-weight:600;overflow-wrap:anywhere}.role-pill{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--moss);background:var(--moss-bg);padding:5px 8px;border-radius:999px;white-space:nowrap}.account-actions{margin-top:12px}
 .admin-hero{padding:12px 2px 18px}.admin-hero h2{font-family:'Bebas Neue',sans-serif;font-size:29px;font-weight:400;line-height:1.05;margin:0 0 8px}.admin-hero p{font-size:13px;color:var(--paper-dim);line-height:1.55;margin:0}.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}.admin-stat{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:13px 9px;text-align:center}.admin-stat strong{display:block;font-family:'Anton',sans-serif;font-size:22px;font-weight:400}.admin-stat span{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.05em;text-transform:uppercase;color:var(--paper-dim)}
-.beta-user{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:14px 15px;margin-bottom:10px}.beta-user-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.beta-user-email{font-size:13px;font-weight:600;overflow-wrap:anywhere}.beta-user-meta{font-size:10px;color:var(--paper-dim);margin-top:4px;font-family:'IBM Plex Mono',monospace}.access-pill{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:.03em;padding:4px 9px;border-radius:999px;white-space:nowrap}.access-active{background:var(--moss-bg);color:#AABC87}.access-suspended{background:var(--oxide-bg);color:#C4AF9E}.access-expired{background:var(--terracotta-bg);color:var(--terracotta)}.beta-user-controls{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.beta-user-controls input{min-width:145px;flex:1;background:var(--ink);border:1px solid var(--line);color:var(--paper);padding:7px 9px;border-radius:7px;font-size:12px}.admin-message{font-size:12px;line-height:1.45;color:var(--paper-dim);min-height:18px;margin:8px 1px 14px}.admin-message.error{color:var(--terracotta)}.admin-message.success{color:#AABC87}
+.beta-user{background:linear-gradient(145deg,rgba(244,239,229,.035),transparent 42%),var(--ink-2);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:11px;box-shadow:0 12px 28px rgba(0,0,0,.12)}.beta-user-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.beta-user-identity{display:flex;align-items:center;gap:12px;min-width:0}.beta-user-avatar{position:relative;width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;overflow:hidden;background:linear-gradient(135deg,var(--moss),var(--brass));border:2px solid rgba(244,239,229,.16);color:var(--cream);font-family:'Anton',sans-serif;font-size:18px;letter-spacing:.03em;box-shadow:0 5px 14px rgba(0,0,0,.2)}.beta-user-avatar img{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover}.beta-user-copy{min-width:0}.beta-user-name{font-size:14px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.beta-user-email{font-size:11px;color:var(--paper-dim);overflow-wrap:anywhere;margin-top:3px}.beta-user-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:9px;color:var(--paper-dim);margin-top:7px;font-family:'IBM Plex Mono',monospace}.beta-role{color:var(--brass);background:var(--brass-soft);border-radius:999px;padding:3px 7px;text-transform:uppercase;letter-spacing:.05em}.beta-self{color:#AABC87}.access-pill{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:.03em;padding:4px 9px;border-radius:999px;white-space:nowrap}.access-active{background:var(--moss-bg);color:#AABC87}.access-suspended{background:var(--oxide-bg);color:#C4AF9E}.access-expired{background:var(--terracotta-bg);color:var(--terracotta)}.beta-expiry{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:10px 11px;border:1px solid rgba(244,239,229,.08);border-radius:10px;background:rgba(11,32,54,.42)}.beta-expiry-label{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--paper-dim)}.beta-expiry-value{font-size:11px;font-weight:600;text-align:right}.beta-user-controls{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}.beta-user-controls input{min-width:145px;flex:1;background:var(--ink);border:1px solid var(--line);color:var(--paper);padding:7px 9px;border-radius:7px;font-size:12px}.admin-message{font-size:12px;line-height:1.45;color:var(--paper-dim);min-height:18px;margin:8px 1px 14px}.admin-message.error{color:var(--terracotta)}.admin-message.success{color:#AABC87}
+@media(max-width:390px){.beta-user-head{align-items:center}.beta-user-avatar{width:43px;height:43px}.beta-user-controls .btn{flex:1}.beta-user-controls input{flex-basis:100%}}
 button,input,select{font:inherit}
 .app{
   width:100%;max-width:520px;min-height:100vh;display:flex;flex-direction:column;
@@ -565,6 +566,26 @@ function betaAccessState(user){
   return {label:'Suspendido',css:'access-suspended'};
 }
 
+function betaRoleLabel(role){
+  return role==='admin'?'Administrador':'Beta tester';
+}
+
+function betaInitials(name,email){
+  const source=String(name||email||'?').trim();
+  return source.split(/[\s@._-]+/).filter(Boolean).map(part=>part[0]).slice(0,2).join('').toUpperCase()||'?';
+}
+
+function safeAvatarUrl(value){
+  try{const url=new URL(String(value||''));return url.protocol==='https:'?url.href:''}catch(error){return ''}
+}
+
+function betaExpiryLabel(expires){
+  if(!expires)return 'Sin vencimiento';
+  const date=new Date(expires);
+  if(!Number.isFinite(date.getTime()))return 'Fecha no válida';
+  return new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short',year:'numeric'}).format(date);
+}
+
 function renderBetaUsers(){
   const now=Date.now(),week=now+7*86400000;
   const active=betaUsers.filter(u=>u.active===true&&(!u.expires_at||new Date(u.expires_at).getTime()>now));
@@ -579,8 +600,17 @@ function renderBetaUsers(){
     const state=betaAccessState(user),isSelf=String(user.email).toLowerCase()===ownEmail;
     const expires=user.expires_at?String(user.expires_at).slice(0,10):'';
     const created=user.created_at?new Intl.DateTimeFormat('es-PE',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(user.created_at)):'—';
+    const displayName=String(user.full_name||'').trim()||String(user.email||'Usuario').split('@')[0];
+    const avatar=safeAvatarUrl(user.avatar_url);
     return `<article class="beta-user" data-user-id="${esc(user.id)}">
-      <div class="beta-user-head"><div><div class="beta-user-email">${esc(user.email)}</div><div class="beta-user-meta">${esc(user.role||'tester')} · desde ${esc(created)}${isSelf?' · tú':''}</div></div><span class="access-pill ${state.css}">${state.label}</span></div>
+      <div class="beta-user-head">
+        <div class="beta-user-identity">
+          <div class="beta-user-avatar" aria-hidden="true">${avatar?`<img src="${esc(avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:''}<span>${esc(betaInitials(displayName,user.email))}</span></div>
+          <div class="beta-user-copy"><div class="beta-user-name" title="${esc(displayName)}">${esc(displayName)}</div><div class="beta-user-email">${esc(user.email)}</div><div class="beta-user-meta"><span class="beta-role">${esc(betaRoleLabel(user.role))}</span><span>Desde ${esc(created)}</span>${isSelf?'<span class="beta-self">Tu cuenta</span>':''}</div></div>
+        </div>
+        <span class="access-pill ${state.css}">${state.label}</span>
+      </div>
+      <div class="beta-expiry"><span class="beta-expiry-label">Vencimiento</span><span class="beta-expiry-value">${esc(betaExpiryLabel(user.expires_at))}</span></div>
       <div class="beta-user-controls">
         <input type="date" data-expiry-input value="${esc(expires)}" aria-label="Vencimiento de ${esc(user.email)}">
         <button class="btn btn-ghost btn-sm" type="button" data-admin-action="save-expiry">Guardar fecha</button>
@@ -597,7 +627,18 @@ async function cargarBetaUsers(){
   document.getElementById('admin-users').innerHTML='<div class="empty">Cargando accesos…</div>';
   const {data,error}=await supabaseClient.from('beta_users').select('id,email,active,expires_at,role,created_at').order('created_at',{ascending:false});
   if(error){adminMessage('No se pudo cargar la lista: '+error.message,'error');document.getElementById('admin-users').innerHTML='<div class="empty">No se pudo cargar la lista.</div>';return;}
-  betaUsers=Array.isArray(data)?data:[];adminMessage();renderBetaUsers();
+  betaUsers=Array.isArray(data)?data:[];
+  const emails=betaUsers.map(user=>String(user.email||'').trim().toLowerCase()).filter(Boolean);
+  if(emails.length){
+    const {data:profiles,error:profilesError}=await supabaseClient.from('profiles').select('email,full_name,avatar_url').in('email',emails);
+    if(profilesError){
+      console.warn('No se pudieron cargar los perfiles; se mostrará la información de acceso.',profilesError.message);
+    }else{
+      const byEmail=new Map((profiles||[]).map(profile=>[String(profile.email||'').trim().toLowerCase(),profile]));
+      betaUsers=betaUsers.map(user=>({...user,...(byEmail.get(String(user.email||'').trim().toLowerCase())||{})}));
+    }
+  }
+  adminMessage();renderBetaUsers();
 }
 
 async function guardarBetaUser(event){
