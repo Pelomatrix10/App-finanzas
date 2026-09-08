@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v15-payment-statuses";
+const CACHE_NAME = "tito-github-v16-simple-payment-statuses";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
