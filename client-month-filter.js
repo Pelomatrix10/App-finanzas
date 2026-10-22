@@ -19,7 +19,7 @@
     bar.setAttribute('aria-label','Filtrar clientes por mes');
     bar.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:16px 0;padding:5px;background:rgba(11,32,54,.55);border:1px solid var(--line);border-radius:12px;';
     const now=mesActual(), prev=previousMonth();
-    [[now,nombreMes(now).split(' ')[0]],[prev,nombreMes(prev).split(' ')[0]],['all','Todos']].forEach(([month,label])=>{
+    [[prev,nombreMes(prev).split(' ')[0]],[now,nombreMes(now).split(' ')[0]],['all','Todos']].forEach(([month,label])=>{
       const btn=document.createElement('button');
       btn.type='button';btn.dataset.month=month;btn.textContent=label;
       btn.style.cssText='min-width:0;border:0;border-radius:9px;padding:12px 3px;background:transparent;color:var(--paper-dim);font-size:12px;font-weight:650;cursor:pointer;';
@@ -28,6 +28,18 @@
     });
     anchor.insertAdjacentElement('beforebegin',bar);
     return bar;
+  }
+  function latestActivity(project){
+    return [fechaCreacion(project),project.fechaFacturacion,fechaPago(project)].filter(Boolean).sort().pop()||'';
+  }
+  function reorderClients(){
+    const container=document.getElementById('lista-clientes');
+    if(!container)return;
+    const ordered=clientes.map((client,index)=>({
+      client,index,
+      latest:(client.proyectos||[]).filter(p=>selected==='all'||String(fechaCreacion(p)||'').slice(0,7)===selected).map(latestActivity).sort().pop()||''
+    })).sort((a,b)=>b.latest.localeCompare(a.latest)||a.index-b.index);
+    ordered.forEach(({client})=>{const frame=document.getElementById('frame-'+client.id);if(frame)container.appendChild(frame);});
   }
   function applyMonth(){
     const bar=ensureBar();
@@ -38,7 +50,7 @@
       btn.style.color=active?'var(--brass,#C9824A)':'var(--paper-dim)';
       btn.setAttribute('aria-pressed',String(active));
     });
-    if(selected==='all')return;
+    if(selected==='all'){reorderClients();return;}
     let visible=0, total=0, projectCount=0;
     clientes.forEach(c=>{
       const frame=document.getElementById('frame-'+c.id);
@@ -58,6 +70,7 @@
         if(meta)meta.textContent=count+' proyecto'+(count===1?'':'s')+' · total del mes '+fmt(sum);
       }
     });
+    reorderClients();
     const nar=document.getElementById('narrativa-clientes');
     if(nar)nar.textContent=visible
       ?nombreMes(selected)+': '+projectCount+' proyecto'+(projectCount===1?'':'s')+' en '+visible+' cliente'+(visible===1?'':'s')+' · '+fmt(total)+'. Las deudas indican el total pendiente, incluso de otros meses.'
