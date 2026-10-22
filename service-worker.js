@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v18-direct-client-month-tabs";
+const CACHE_NAME = "tito-github-v19-chronological-client-tabs";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
