@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v21-copper-header-clean";
+const CACHE_NAME = "tito-github-v22-agenda-cards";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
