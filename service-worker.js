@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v19-chronological-client-tabs";
+const CACHE_NAME = "tito-github-v20-studio-noir-copper";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
@@ -9,6 +9,7 @@ const APP_SHELL = [
   BASE + "month-history.js",
   BASE + "summary-movements.js",
   BASE + "client-month-filter.js",
+  BASE + "studio-noir-copper.js",
   BASE + "beta-welcome.js",
   BASE + "manifest.json",
   BASE + "icons/icon-192.png",
