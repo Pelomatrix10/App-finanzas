@@ -9,6 +9,7 @@ const extraStyle=document.createElement('style');extraStyle.textContent='.copper
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
 const api=()=>typeof supabaseClient!=='undefined'&&supabaseClient&&window.titoAccess?.user?supabaseClient:null;
 const field=name=>form.elements.namedItem(name);
+const limaToday=()=>{const p=Object.fromEntries(new Intl.DateTimeFormat('en',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(x=>[x.type,x.value]));return p.year+'-'+p.month+'-'+p.day;};
 const key=s=>String(s||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('es');
 const clientText=field('cliente');
 const picker=el('div','copper-client-picker'),selectLabel=el('label','','Vincular con cliente'),select=el('select');
@@ -53,12 +54,12 @@ async function edit(job){
  }catch(e){alert('No se pudieron cargar los clientes: '+e.message)}finally{busy=false}
 }
 function card(job){
- const box=el('article','copper-booking'),dateBox=el('div','copper-booking-date');dateBox.dataset.status=job.estado;
+ const box=el('article','copper-booking'),dateBox=el('div','copper-booking-date');box.dataset.jobId=job.id;dateBox.dataset.status=job.estado;
  const [year,month,day]=String(job.fecha||'').split('-').map(Number);
  dateBox.append(el('span','',month?new Intl.DateTimeFormat('es-PE',{month:'short'}).format(new Date(year,month-1,1)).toUpperCase():''),el('strong','',String(day||'--').padStart(2,'0')));
  const info=el('div','copper-booking-info');
  info.append(el('div','copper-booking-name',job.nombre),el('div','copper-booking-meta',[job.tipo,job.cliente,[job.inicio?.slice(0,5),job.fin?.slice(0,5)].filter(Boolean).join('–')].filter(Boolean).join(' · ')));
- if(job.cliente_id)info.append(el('div','copper-client-linked','Cliente vinculado · sin cobro generado por Agenda'));
+ if(job.cliente_id)info.append(el('div','copper-client-linked',job.cobro_generado_id?'Asistencia registrada · cobro generado':'Cliente vinculado · sin cobro generado por Agenda'));
  else if(job.estado==='Confirmado')info.append(el('div','copper-agenda-hint','Pendiente de vincular a un cliente'));
  const bottom=el('div','copper-booking-bottom');bottom.append(el('span','copper-booking-money','S/ '+Number(job.tarifa||0).toLocaleString('es-PE',{maximumFractionDigits:2})),el('span','copper-booking-status',job.estado));info.append(bottom);
  const actions=el('div','copper-booking-actions'),state=el('button','','Cambiar estado');state.type='button';
@@ -76,13 +77,37 @@ function card(job){
   try{const {error}=await client.from('agenda_trabajos').delete().eq('id',job.id);if(error)throw error;if(form.dataset.editingId===job.id){reset();wrap.hidden=true}await refresh()}
   catch(e){alert('No se pudo eliminar: '+e.message)}finally{remove.disabled=false}
  };
- actions.append(state,editButton,remove);info.append(actions);box.append(dateBox,info);return box;
+ if(job.cobro_generado_id){state.hidden=true;editButton.hidden=true;remove.hidden=true;}
+ const attend=el('button','',job.cobro_generado_id?'Ver cobro':'Asistí · registrar cobro');attend.type='button';
+ attend.hidden=!job.cobro_generado_id&&job.estado!=='Confirmado';
+ attend.disabled=!job.cobro_generado_id&&job.fecha>limaToday();
+ if(attend.disabled)attend.title='Disponible desde la fecha del rodaje';
+ attend.onclick=()=>attendance(job,attend);
+ actions.append(attend,state,editButton,remove);info.append(actions);box.append(dateBox,info);return box;
+}
+async function attendance(job,button){
+ if(busy)return;
+ let amount=Number(job.tarifa||0);
+ if(!job.cobro_generado_id){
+  if(!job.cliente_id){alert('Primero edita el rodaje y vincúlalo con un cliente.');return;}
+  const input=prompt('Asistencia a '+job.nombre+'\nCliente: '+job.cliente+'\nMonto del cobro pendiente (S/):',String(amount));
+  if(input===null)return;amount=Number(input.trim().replace(',','.'));
+  if(!Number.isFinite(amount)||amount<=0||Math.abs(amount*100-Math.round(amount*100))>1e-6){alert('Ingresa un monto mayor a cero, con hasta dos decimales.');return;}
+  if(!confirm('¿Confirmas que asististe a '+job.nombre+'?\nSe registrará un único cobro pendiente para '+job.cliente+' por S/ '+amount.toFixed(2)+'.'))return;
+ }
+ busy=true;button.disabled=true;
+ try{
+  await window.titoCloud.flush();
+  const {data,error}=await api().rpc('attend_agenda_job',{job_id:job.id,amount});
+  if(error)throw error;window.titoCloud.mergeCharge(data);await refresh();
+  document.querySelector('.copper-bottom [data-copper="cobros"]')?.click();
+ }catch(error){alert('No se pudo completar: '+error.message)}finally{busy=false;button.disabled=false}
 }
 async function refresh(){
  const client=api();if(!client){loadedUser=null;directory=[];list.replaceChildren(el('p','copper-agenda-hint','Inicia sesión para ver tus trabajos.'));return}
  if(loading)return;loading=true;const uid=window.titoAccess.user.id;
  try{
-  const {data,error}=await client.from('agenda_trabajos').select('id,tipo,nombre,cliente,cliente_id,rol,fecha,inicio,fin,lugar,estado,tarifa,notas').eq('user_id',uid).order('fecha',{ascending:true});
+  const {data,error}=await client.from('agenda_trabajos').select('id,tipo,nombre,cliente,cliente_id,rol,fecha,inicio,fin,lugar,estado,tarifa,notas,cobro_generado_id,asistio_at').eq('user_id',uid).order('fecha',{ascending:true});
   if(error)throw error;if(window.titoAccess?.user?.id!==uid)return;
   list.replaceChildren(el('h3','','Trabajos agendados'));
   if(!data?.length)list.append(el('p','copper-agenda-hint','Todavía no hay trabajos guardados.'));
@@ -127,6 +152,17 @@ const originalDelete=window.eliminarCliente;
 window.eliminarCliente=async id=>{
  try{await loadDirectory();const c=directory.find(c=>c.legacy_id===id);if(c){const {data,error}=await api().from('agenda_trabajos').select('id').eq('cliente_id',c.id).limit(1);if(error)throw error;if(data?.length){alert('Este cliente tiene rodajes vinculados. Desvincúlalos en Agenda antes de eliminarlo.');return}}originalDelete(id)}
  catch(e){alert('No se pudo comprobar el cliente: '+e.message)}
+};
+const originalDeleteProject=window.eliminarProyecto;
+if(originalDeleteProject)window.eliminarProyecto=async(clientId,projectId)=>{
+ try{
+  const client=api();if(!client)throw new Error('Inicia sesión para comprobar el cobro.');
+  await window.titoCloud.flush();
+  const {data,error}=await client.from('proyectos').select('agenda_trabajo_id').eq('user_id',window.titoAccess.user.id).eq('legacy_id',projectId).maybeSingle();
+  if(error)throw error;
+  if(data?.agenda_trabajo_id){alert('Este cobro está vinculado a una asistencia. Puedes editar su monto y estado desde Cobros; no se puede eliminar por separado.');return;}
+  originalDeleteProject(clientId,projectId);
+ }catch(error){alert('No se pudo comprobar el cobro: '+error.message)}
 };
 options();updateChoice();
 })();

@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v26-clientes-agenda-visible";
+const CACHE_NAME = "tito-github-v27-asistencia-recordatorios";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
@@ -11,6 +11,7 @@ const APP_SHELL = [
   BASE + "client-month-filter.js",
   BASE + "studio-noir-copper.js",
   BASE + "agenda-persistence.js",
+  BASE + "agenda-reminders.js",
   BASE + "beta-welcome.js",
   BASE + "manifest.json",
   BASE + "icons/icon-192.png",
@@ -31,6 +32,27 @@ self.addEventListener("install", (event) => {
       .then((cache) => cache.addAll(APP_SHELL))
       .then(() => self.skipWaiting())
   );
+});
+
+self.addEventListener("push",event=>{
+  let payload={};
+  try{payload=event.data?.json()||{}}catch{}
+  const raw=String(payload.url||BASE);
+  let url;try{url=new URL(raw,BASE)}catch{url=new URL(BASE)}
+  const safeUrl=url.origin===self.location.origin&&url.pathname.startsWith(new URL(BASE).pathname)?url.href:BASE;
+  event.waitUntil(self.registration.showNotification(String(payload.title||"TiTo · Recordatorio"),{
+    body:String(payload.body||"Abre TiTo para revisar tu Agenda."),
+    icon:BASE+"icons/icon-192.png",badge:BASE+"icons/favicon-48.png",
+    tag:String(payload.tag||"tito-reminder"),data:{url:safeUrl},renotify:false
+  }));
+});
+self.addEventListener("notificationclick",event=>{
+  event.notification.close();
+  const url=event.notification.data?.url||BASE;
+  event.waitUntil(self.clients.matchAll({type:"window",includeUncontrolled:true}).then(async clients=>{
+    for(const client of clients){if(client.url.startsWith(BASE)&&"navigate" in client){await client.navigate(url);return client.focus();}}
+    return self.clients.openWindow(url);
+  }));
 });
 
 self.addEventListener("activate", (event) => {

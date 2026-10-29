@@ -715,6 +715,7 @@ function setAuthState(state,message=''){
 }
 
 async function cerrarSesion(){
+  try{await window.titoPush?.deactivate()}catch(e){console.error('TiTo: no se pudieron desactivar los avisos al salir',e);}
   if(supabaseClient) await supabaseClient.auth.signOut();
   window.titoAccess=null;
   titoApp.hidden=true;
@@ -808,6 +809,6 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
 <script src="./client-month-filter.js"></script>
 <script src="./studio-noir-copper.js"></script>
 <script src="./agenda-persistence.js"></script>
+<script src="./agenda-reminders.js"></script>
 </body>
 </html>
-

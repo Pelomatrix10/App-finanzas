@@ -61,6 +61,14 @@ window.TITO_SUPABASE_CONFIG = Object.freeze({
       await syncInFlight;
       if(dirty) await enviarSnapshot();
     },
+    mergeCharge(result){
+      const client=clientes.find(c=>c.id===result.cliente_legacy_id);
+      if(!client)throw new Error('El cobro se guardó. Vuelve a entrar para actualizar el cliente.');
+      client.proyectos=client.proyectos||[];
+      const existing=client.proyectos.find(p=>p.id===result.project.id);
+      if(existing)Object.assign(existing,result.project);else client.proyectos.push(result.project);
+      recalcularIds();originalGuardar();renderAll();
+    },
     mergeClients(rows){
       for(const row of rows){
         if(!clientes.some(c=>c.id===row.legacy_id)) clientes.push({id:row.legacy_id,nombre:row.nombre,nota:row.nota||'',proyectos:[]});

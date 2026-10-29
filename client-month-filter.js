@@ -16,11 +16,11 @@
       const note=document.createElement('div');
       note.className='tito-client-agenda-summary';
       note.style.cssText='padding:0 18px 14px;color:var(--paper-dim);font-size:12px;line-height:1.6;overflow-wrap:anywhere';
-      const heading=document.createElement('div');heading.textContent='RODAJES EN AGENDA · SIN COBRO GENERADO';heading.style.cssText='color:var(--brass);font-size:10px;letter-spacing:.06em;margin-bottom:5px';
+      const heading=document.createElement('div');heading.textContent='RODAJES EN AGENDA';heading.style.cssText='color:var(--brass);font-size:10px;letter-spacing:.06em;margin-bottom:5px';
       note.appendChild(heading);
       for(const job of jobs){
         const line=document.createElement('div');
-        line.textContent=job.nombre+' · '+job.fecha.split('-').reverse().join('/')+' · '+job.estado+' · tarifa prevista '+fmt(Number(job.tarifa||0));
+        line.textContent=job.nombre+' · '+job.fecha.split('-').reverse().join('/')+' · '+job.estado+(job.cobro_generado_id?' · cobro registrado':' · sin cobro generado · tarifa prevista '+fmt(Number(job.tarifa||0)));
         note.appendChild(line);
       }
       frame.querySelector('.frame-top').after(note);
@@ -33,7 +33,7 @@
     if(agendaUser!==user){agendaJobs=[];agendaUser=user;}
     try{
       const {data,error}=await supabaseClient.from('agenda_trabajos')
-        .select('id,nombre,fecha,estado,tarifa,cliente_ref:clientes(legacy_id)')
+        .select('id,nombre,fecha,estado,tarifa,cobro_generado_id,cliente_ref:clientes(legacy_id)')
         .eq('user_id',user).not('cliente_id','is',null).order('fecha',{ascending:true});
       if(error)throw error;
       if(request!==agendaRequest||window.titoAccess?.user?.id!==user)return;
