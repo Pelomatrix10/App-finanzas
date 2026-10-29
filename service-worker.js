@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v20-studio-noir-copper";
+const CACHE_NAME = "tito-github-v21-copper-header-clean";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
