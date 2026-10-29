@@ -55,10 +55,12 @@ form.addEventListener('submit',async e=>{
   const payload={tipo:f.tipo,nombre:f.nombre.trim(),cliente:f.cliente||'',rol:f.rol||'',fecha:f.fecha,inicio:f.inicio||null,fin:f.fin||null,lugar:f.lugar||'',estado:f.estado,tarifa:Number(f.tarifa||0),notas:f.notas||''};
   const {data:existing,error:lookupError}=await client.from('agenda_trabajos').select('id,nombre,estado,inicio,fin').eq('fecha',payload.fecha).neq('estado','Cancelado');
   if(lookupError)throw lookupError;
-  if(existing?.length && !confirm('Ya hay '+existing.length+' reserva(s) activa(s) en esta fecha. ¿Guardar igualmente?'))return;
-  const {error}=await client.from('agenda_trabajos').insert(payload);
+  if(existing?.filter(row=>row.id!==form.dataset.editingId).length && !confirm('Ya hay '+existing.length+' reserva(s) activa(s) en esta fecha. ¿Guardar igualmente?'))return;
+  const id=form.dataset.editingId;
+  const operation=id?client.from('agenda_trabajos').update({...payload,updated_at:new Date().toISOString()}).eq('id',id):client.from('agenda_trabajos').insert(payload);
+  const {error}=await operation;
   if(error)throw error;
-  wrap.hidden=true;form.reset();await refresh();
+  delete form.dataset.editingId;wrap.hidden=true;form.reset();await refresh();
  }catch(err){alert('No se pudo guardar: '+err.message)}
  finally{save.disabled=false;save.textContent=original}
 },true);
@@ -66,4 +68,6 @@ host.addEventListener('click',()=>{if(api()&&loadedUser!==window.titoAccess.user
 const observer=setInterval(()=>{if(!document.getElementById('tito-app')){clearInterval(observer);return}if(host.classList.contains('active-section')&&api()&&loadedUser!==window.titoAccess.user.id)refresh()},1500);
 window.addEventListener('tito-cloud-status',()=>{if(host.classList.contains('active-section'))refresh()});
 window.addEventListener('pagehide',()=>clearInterval(observer));
+document.getElementById('copper-open').addEventListener('click',()=>{delete form.dataset.editingId;form.reset()},true);
+document.getElementById('copper-cancel').addEventListener('click',()=>{delete form.dataset.editingId;form.reset()},true);
 })();
