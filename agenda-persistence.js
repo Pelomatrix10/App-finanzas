@@ -87,6 +87,7 @@ async function refresh(){
   list.replaceChildren(el('h3','','Trabajos agendados'));
   if(!data?.length)list.append(el('p','copper-agenda-hint','Todavía no hay trabajos guardados.'));
   for(const job of data||[])list.append(card(job));loadedUser=uid;
+  window.dispatchEvent(new CustomEvent('tito-agenda-updated'));
  }catch(e){list.replaceChildren(el('p','copper-agenda-hint','No se pudo cargar Agenda: '+e.message))}finally{loading=false}
 }
 function reset(){delete form.dataset.editingId;delete form.dataset.pendingId;form.reset();options();create.checked=false;updateChoice()}

@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v25-agenda-clientes";
+const CACHE_NAME = "tito-github-v26-clientes-agenda-visible";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
