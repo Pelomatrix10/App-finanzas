@@ -29,7 +29,7 @@ function card(job){
   if(error){alert('No se pudo actualizar: '+error.message);state.disabled=false;return}
   await refresh();
  };
- actions.append(state);info.append(actions);box.append(dateBox,info);return box;
+ const edit=el('button','','Editar');edit.type='button';edit.onclick=()=>{const fields=['tipo','nombre','cliente','rol','fecha','inicio','fin','lugar','estado','tarifa','notas'];for(const key of fields){const input=form.elements.namedItem(key);if(input)input.value=job[key]??'';}form.dataset.editingId=job.id;wrap.hidden=false;form.hidden=false;document.getElementById('copper-preview').hidden=true;wrap.scrollIntoView({block:'start'});};actions.append(state,edit);info.append(actions);box.append(dateBox,info);return box;
 }
 async function refresh(){
  const client=api();if(!client){list.replaceChildren(el('p','copper-agenda-hint','Inicia sesión para ver tus trabajos.'));return}
