@@ -50,6 +50,24 @@ window.TITO_SUPABASE_CONFIG = Object.freeze({
   let cloudReady = false;
   let syncTimer = null;
   let originalGuardar = null;
+  let syncInFlight = Promise.resolve();
+  let dirty = false;
+
+  // Agenda merges only the directory; it never reloads or writes financial rows.
+  window.titoCloud = {
+    async flush(){
+      if(!cloudReady) throw new Error('Espera a que termine la sincronización antes de vincular clientes.');
+      clearTimeout(syncTimer);
+      await syncInFlight;
+      if(dirty) await enviarSnapshot();
+    },
+    mergeClients(rows){
+      for(const row of rows){
+        if(!clientes.some(c=>c.id===row.legacy_id)) clientes.push({id:row.legacy_id,nombre:row.nombre,nota:row.nota||'',proyectos:[]});
+      }
+      recalcularIds();originalGuardar();renderAll();
+    }
+  };
 
   function snapshotActual(){
     return {
@@ -60,20 +78,27 @@ window.TITO_SUPABASE_CONFIG = Object.freeze({
   }
 
   async function enviarSnapshot(){
+    const task = syncInFlight.then(async()=>{
     if(!cloudReady || !supabaseClient || !window.titoAccess || !window.titoAccess.user) return;
     const snapshot = snapshotActual();
+    dirty = false;
     const {error} = await supabaseClient.rpc('sync_tito_snapshot',{snapshot});
     if(error){
+      dirty = true;
       console.error('TiTo: no se pudo sincronizar con Supabase',error);
       window.dispatchEvent(new CustomEvent('tito-cloud-status',{detail:{status:'error',message:error.message}}));
-      return;
+      throw error;
     }
     window.dispatchEvent(new CustomEvent('tito-cloud-status',{detail:{status:'synced'}}));
+    });
+    syncInFlight = task.catch(()=>{dirty=true;});
+    return task;
   }
 
   function programarSync(){
     clearTimeout(syncTimer);
-    syncTimer = setTimeout(enviarSnapshot,350);
+    dirty = true;
+    syncTimer = setTimeout(()=>enviarSnapshot().catch(()=>{}),350);
   }
 
   async function activarCloud(){
