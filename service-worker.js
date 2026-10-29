@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v22-agenda-cards";
+const CACHE_NAME = "tito-github-v23-agenda-persistence";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
@@ -10,6 +10,7 @@ const APP_SHELL = [
   BASE + "summary-movements.js",
   BASE + "client-month-filter.js",
   BASE + "studio-noir-copper.js",
+  BASE + "agenda-persistence.js",
   BASE + "beta-welcome.js",
   BASE + "manifest.json",
   BASE + "icons/icon-192.png",
