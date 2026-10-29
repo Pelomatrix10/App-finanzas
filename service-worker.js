@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v27-asistencia-recordatorios";
+const CACHE_NAME = "tito-github-v28-asistencia-importes";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [

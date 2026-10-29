@@ -5,7 +5,7 @@ if(!host||!form||!wrap)return;
 const style=document.createElement('style');
 style.textContent='.copper-booking-date[data-status="Confirmado"]{background:#a8b994;border-color:#a8b994;color:#15271d}.copper-booking-date[data-status="Confirmado"] span{color:#15271d}.copper-booking-date[data-status="Tentativo"]{background:#d4b279;border-color:#d4b279;color:#302314}.copper-booking-date[data-status="Tentativo"] span{color:#302314}.copper-booking-date[data-status="Cancelado"]{background:#c88989;border-color:#c88989;color:#331b21}.copper-booking-date[data-status="Cancelado"] span{color:#331b21}.copper-agenda-list{margin-top:18px}.copper-agenda-list h3{color:#f3ebdd;font-size:17px}.copper-booking-actions{display:flex;gap:7px;margin-top:10px}.copper-booking-actions button{border:1px solid #70543e;border-radius:8px;background:#203440;color:#f3ebdd;padding:7px 11px;font-size:12px}.copper-agenda-hint{color:#c9bdb1;font-size:12px;line-height:1.5}';
 document.head.appendChild(style);
-const extraStyle=document.createElement('style');extraStyle.textContent='.copper-booking-actions{flex-wrap:wrap}.copper-client-picker{grid-column:1/-1}.copper-client-picker label{display:block}.copper-client-picker .copper-create-client{display:flex;gap:8px;align-items:center}.copper-client-picker input[type=checkbox]{width:auto}.copper-client-linked{color:#a8b994;font-size:12px;margin-top:5px}';document.head.appendChild(extraStyle);
+const extraStyle=document.createElement('style');extraStyle.textContent='.copper-booking-actions{flex-wrap:wrap}.copper-booking-actions button:disabled{opacity:.5;cursor:default}.copper-client-picker{grid-column:1/-1}.copper-client-picker label{display:block}.copper-client-picker .copper-create-client{display:flex;gap:8px;align-items:center}.copper-client-picker input[type=checkbox]{width:auto}.copper-client-linked{color:#a8b994;font-size:12px;margin-top:5px}';document.head.appendChild(extraStyle);
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
 const api=()=>typeof supabaseClient!=='undefined'&&supabaseClient&&window.titoAccess?.user?supabaseClient:null;
 const field=name=>form.elements.namedItem(name);
@@ -61,7 +61,7 @@ function card(job){
  info.append(el('div','copper-booking-name',job.nombre),el('div','copper-booking-meta',[job.tipo,job.cliente,[job.inicio?.slice(0,5),job.fin?.slice(0,5)].filter(Boolean).join('–')].filter(Boolean).join(' · ')));
  if(job.cliente_id)info.append(el('div','copper-client-linked',job.cobro_generado_id?'Asistencia registrada · cobro generado':'Cliente vinculado · sin cobro generado por Agenda'));
  else if(job.estado==='Confirmado')info.append(el('div','copper-agenda-hint','Pendiente de vincular a un cliente'));
- const bottom=el('div','copper-booking-bottom');bottom.append(el('span','copper-booking-money','S/ '+Number(job.tarifa||0).toLocaleString('es-PE',{maximumFractionDigits:2})),el('span','copper-booking-status',job.estado));info.append(bottom);
+ const bottom=el('div','copper-booking-bottom');bottom.append(el('span','copper-booking-money',(job.cobro_generado_id?'Cobro ':'')+'S/ '+Number(job.cobro?.monto??job.tarifa??0).toLocaleString('es-PE',{maximumFractionDigits:2})),el('span','copper-booking-status',job.estado));info.append(bottom);
  const actions=el('div','copper-booking-actions'),state=el('button','','Cambiar estado');state.type='button';
  state.onclick=async()=>{
   const next=job.estado==='Tentativo'?'Confirmado':job.estado==='Confirmado'?'Cancelado':'Tentativo';
@@ -81,7 +81,7 @@ function card(job){
  const attend=el('button','',job.cobro_generado_id?'Ver cobro':'Asistí · registrar cobro');attend.type='button';
  attend.hidden=!job.cobro_generado_id&&job.estado!=='Confirmado';
  attend.disabled=!job.cobro_generado_id&&job.fecha>limaToday();
- if(attend.disabled)attend.title='Disponible desde la fecha del rodaje';
+ if(attend.disabled){attend.title='Disponible desde la fecha del rodaje';info.append(el('div','copper-agenda-hint','Podrás registrar asistencia el '+job.fecha.split('-').reverse().join('/')));}
  attend.onclick=()=>attendance(job,attend);
  actions.append(attend,state,editButton,remove);info.append(actions);box.append(dateBox,info);return box;
 }
@@ -107,7 +107,7 @@ async function refresh(){
  const client=api();if(!client){loadedUser=null;directory=[];list.replaceChildren(el('p','copper-agenda-hint','Inicia sesión para ver tus trabajos.'));return}
  if(loading)return;loading=true;const uid=window.titoAccess.user.id;
  try{
-  const {data,error}=await client.from('agenda_trabajos').select('id,tipo,nombre,cliente,cliente_id,rol,fecha,inicio,fin,lugar,estado,tarifa,notas,cobro_generado_id,asistio_at').eq('user_id',uid).order('fecha',{ascending:true});
+  const {data,error}=await client.from('agenda_trabajos').select('id,tipo,nombre,cliente,cliente_id,rol,fecha,inicio,fin,lugar,estado,tarifa,notas,cobro_generado_id,asistio_at,cobro:proyectos!agenda_trabajos_cobro_generado_id_fkey(monto,estado)').eq('user_id',uid).order('fecha',{ascending:true});
   if(error)throw error;if(window.titoAccess?.user?.id!==uid)return;
   list.replaceChildren(el('h3','','Trabajos agendados'));
   if(!data?.length)list.append(el('p','copper-agenda-hint','Todavía no hay trabajos guardados.'));
