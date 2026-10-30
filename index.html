@@ -715,7 +715,7 @@ function setAuthState(state,message=''){
 }
 
 async function cerrarSesion(){
-  try{await window.titoPush?.deactivate()}catch(e){console.error('TiTo: no se pudieron desactivar los avisos al salir',e);}
+  try{await window.titoPush?.suspend()}catch(e){console.error('TiTo: no se pudieron pausar los avisos al salir',e);}
   if(supabaseClient) await supabaseClient.auth.signOut();
   window.titoAccess=null;
   titoApp.hidden=true;
@@ -737,6 +737,7 @@ function iniciarAppLocal(access){
   renderAll();
   authShell.hidden=true;
   titoApp.hidden=false;
+  window.dispatchEvent(new Event('tito-session-ready'));
 }
 
 async function comprobarAcceso(session){
