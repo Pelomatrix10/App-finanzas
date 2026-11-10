@@ -1,10 +1,11 @@
-const CACHE_NAME = "tito-github-v30-responsive-desktop";
+const CACHE_NAME = "tito-github-v31-analiticas-confirmacion-pagado";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
   BASE,
   BASE + "index.html",
   BASE + "responsive-layout.css",
+  BASE + "financial-analytics.css",
   BASE + "supabase-config.js",
   BASE + "role-ui.js",
   BASE + "month-history.js",

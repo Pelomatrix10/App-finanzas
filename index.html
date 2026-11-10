@@ -141,6 +141,7 @@ section{display:none}.active-section{display:block}
 @media(max-width:370px){nav.tabs button{min-width:52px;font-size:8px}.gato-card{grid-template-columns:96px 1fr}.cat-image{max-width:96px}}
 </style>
 <link rel="stylesheet" href="./responsive-layout.css">
+<link rel="stylesheet" href="./financial-analytics.css">
 </head>
 <body>
 <div class="auth-shell" id="auth-shell" aria-live="polite">
@@ -382,11 +383,12 @@ function editarCliente(id){const c=clientes.find(x=>x.id===id);if(!c)return;cons
 function eliminarCliente(id){const c=clientes.find(x=>x.id===id);if(!c)return;if(confirmDel(`¿Eliminar a ${c.nombre} y todos sus proyectos?`)){clientes=clientes.filter(x=>x.id!==id);guardar();renderAll()}}
 function toggleFrame(id){document.getElementById('frame-'+id)?.classList.toggle('open')}
 function mostrarFormProyecto(id){const el=document.getElementById('form-proy-'+id);el.style.display=el.style.display==='grid'?'none':'grid'}
-function guardarProyecto(cid){const c=clientes.find(x=>x.id===cid);const concepto=document.getElementById(`pr-concepto-${cid}`).value.trim();const monto=parseFloat(document.getElementById(`pr-monto-${cid}`).value);const estado=document.getElementById(`pr-estado-${cid}`).value;if(!concepto||!monto)return alert('Completa concepto y monto.');const fecha=hoy();c.proyectos=c.proyectos||[];c.proyectos.unshift({id:nextProyectoId++,concepto,monto,estado,fecha,fechaCreacion:fecha,fechaPago:estado==='pagado'?fecha:null});guardar();renderAll()}
-function editarProyecto(cid,pid){const c=clientes.find(x=>x.id===cid),p=c?.proyectos?.find(x=>x.id===pid);if(!p)return;const concepto=promptText('Concepto',p.concepto);if(concepto===null||!concepto)return;const monto=promptAmount('Monto (S/)',p.monto);if(monto===null)return;const estado=promptEstadoProyecto(p.estado);if(estado===null)return;p.concepto=concepto;p.monto=monto;cambiarEstadoCobro(cid,pid,estado)}
+function confirmarClientePagado(cliente,proyecto){return confirm('¿Estás seguro de que este cliente ya pagó?\n\nCliente: '+cliente.nombre+'\nTrabajo: '+proyecto.concepto+'\nMonto recibido: '+fmt(proyecto.monto)+'\n\nConfirma solo si ya recibiste el dinero.')}
+function guardarProyecto(cid){const c=clientes.find(x=>x.id===cid);if(!c)return;const concepto=document.getElementById(`pr-concepto-${cid}`).value.trim();const monto=parseFloat(document.getElementById(`pr-monto-${cid}`).value);const estado=document.getElementById(`pr-estado-${cid}`).value;if(!concepto||!monto)return alert('Completa concepto y monto.');const fecha=hoy(),proyecto={id:nextProyectoId,concepto,monto,estado,fecha,fechaCreacion:fecha,fechaPago:estado==='pagado'?fecha:null};if(estado==='pagado'&&!confirmarClientePagado(c,proyecto))return;nextProyectoId++;c.proyectos=c.proyectos||[];c.proyectos.unshift(proyecto);guardar();renderAll()}
+function editarProyecto(cid,pid){const c=clientes.find(x=>x.id===cid),p=c?.proyectos?.find(x=>x.id===pid);if(!p)return;const concepto=promptText('Concepto',p.concepto);if(concepto===null||!concepto)return;const monto=promptAmount('Monto (S/)',p.monto);if(monto===null)return;const estado=promptEstadoProyecto(p.estado);if(estado===null)return;cambiarEstadoCobro(cid,pid,estado,{concepto,monto})}
 function eliminarProyecto(cid,pid){const c=clientes.find(x=>x.id===cid),p=c?.proyectos?.find(x=>x.id===pid);if(!p)return;if(confirmDel(`¿Eliminar el proyecto “${p.concepto}”?`)){c.proyectos=c.proyectos.filter(x=>x.id!==pid);guardar();renderAll()}}
-function marcarCobrado(cid,pid){const p=clientes.find(x=>x.id===cid)?.proyectos?.find(x=>x.id===pid);if(!p)return;p.fechaCreacion=fechaCreacion(p);p.estado='pagado';p.fechaPago=hoy();p.fecha=p.fechaPago;guardar();renderAll()}
-function cambiarEstadoCobro(cid,pid,estado){const p=clientes.find(x=>x.id===cid)?.proyectos?.find(x=>x.id===pid);if(!p||!['realizado','facturado','pagado'].includes(estado))return;p.fechaCreacion=fechaCreacion(p);p.estado=estado;if(estado==='pagado'){p.fechaPago=hoy();p.fecha=p.fechaPago}else{p.fechaPago=null;p.fecha=p.fechaCreacion;if(estado==='facturado')p.fechaFacturacion=p.fechaFacturacion||hoy();else p.fechaFacturacion=null}guardar();renderAll()}
+function marcarCobrado(cid,pid){return cambiarEstadoCobro(cid,pid,'pagado')}
+function cambiarEstadoCobro(cid,pid,estado,cambios){const c=clientes.find(x=>x.id===cid),p=c?.proyectos?.find(x=>x.id===pid);if(!p||!['realizado','facturado','pagado'].includes(estado))return false;const anterior=estadoProyecto(p);if(estado==='pagado'&&anterior!=='pagado'&&!confirmarClientePagado(c,{...p,...cambios}))return false;if(estado===anterior&&!cambios)return true;const creacion=fechaCreacion(p);if(cambios)Object.assign(p,cambios);p.fechaCreacion=creacion;p.estado=estado;if(estado==='pagado'){if(anterior!=='pagado'){p.fechaPago=hoy();p.fecha=p.fechaPago}}else{p.fechaPago=null;p.fecha=p.fechaCreacion;if(estado==='facturado')p.fechaFacturacion=p.fechaFacturacion||hoy();else p.fechaFacturacion=null}guardar();renderAll();return true}
 
 function toggleFormColab(show){document.getElementById('form-nuevo-colab').style.display=show?'grid':'none'}
 document.getElementById('btn-nuevo-colab').onclick=()=>toggleFormColab(true);
@@ -808,6 +810,8 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 }
 </script>
+<script src="./month-history.js"></script>
+<script src="./summary-movements.js"></script>
 <script src="./client-month-filter.js"></script>
 <script src="./studio-noir-copper.js"></script>
 <script src="./agenda-persistence.js"></script>
