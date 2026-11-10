@@ -1,0 +1,112 @@
+/* TiTo: mobile base, tablet workspace, desktop navigation. No data behavior changes. */
+.desktop-section-title{display:none}
+
+@media(min-width:768px){
+  body{display:block}
+  #tito-app{max-width:none}
+  #tito-app>main{width:100%;min-width:0;padding:24px 28px 110px}
+  #tito-app>header{padding-right:28px;padding-left:28px}
+  #tito-app .filmstrip,
+  #tito-app #lista-cobros,
+  #tito-app #lista-pagos,
+  #tito-app #lista-equipo{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;
+  }
+  #tito-app .frame,#tito-app .cobro-row,#tito-app .equipo-row{margin-bottom:0;min-width:0}
+  #tito-app .frame.open{grid-column:1/-1}
+  #tito-app .frame-top>div:nth-child(2){min-width:0}
+  #tito-app .frame-name,#tito-app .frame-meta,
+  #tito-app .detail-row .concepto,#tito-app .cobro-left{overflow-wrap:anywhere;min-width:0}
+  #tito-app .copper-agenda-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+  #tito-app .copper-agenda-list>h3,#tito-app .copper-agenda-list>.copper-agenda-hint{grid-column:1/-1}
+  #tito-app .copper-agenda-list>.copper-booking{margin-top:0}
+  #tito-app #copper-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  #tito-app #copper-form>label{margin:0;min-width:0}
+  #tito-app #copper-form>label:nth-of-type(2),
+  #tito-app #copper-form>label:last-of-type,
+  #tito-app #copper-form>.copper-client-picker{grid-column:1/-1}
+  #tito-app #copper-form-wrap{max-width:1000px}
+  #tito-app .copper-bottom{margin-top:24px}
+  #tito-app button:focus-visible,#tito-app select:focus-visible,
+  #tito-app input:focus-visible,#tito-app textarea:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+}
+
+@media(min-width:1024px){
+  :root{--tito-sidebar-width:232px}
+  #tito-app{width:calc(100% - var(--tito-sidebar-width));margin-left:var(--tito-sidebar-width);min-height:100vh}
+  #tito-app>header{
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
+    width:100%;max-width:1784px;margin:0 auto;padding:30px 32px 24px;
+    border-bottom:1px solid var(--line);
+  }
+  #tito-app>header .brand-lockup{flex:1}
+  #tito-app>header .brand-name{margin:8px 0}
+  #tito-app>header h1{font-size:46px}
+  #tito-app>header .brand-mark{width:58px;height:47px}
+  #tito-app>header .month{font-size:12px;letter-spacing:.09em}
+  #tito-app>header .copper-menu-toggle{display:none}
+  #tito-app>main{max-width:1784px;margin:0 auto;padding:28px 32px 56px!important}
+  #tito-app .copper-bottom{display:none}
+  #tito-app .copper-drawer{
+    display:block!important;position:fixed;inset:0 auto 0 0;
+    width:var(--tito-sidebar-width);z-index:60;background:#112330;border-right:1px solid #70543e;
+  }
+  #tito-app .copper-panel{width:100%;max-width:none;height:100vh;height:100dvh;padding:22px 16px;overflow-y:auto;border:0}
+  #tito-app .copper-panel>.close{display:none}
+  #tito-app .copper-panel>p{font-family:'IBM Plex Mono',monospace;font-size:10px!important;letter-spacing:.08em!important;margin:12px 10px 28px!important}
+  #tito-app .copper-panel>p::before{content:'TiTo';display:block;font-family:'Anton',sans-serif;font-size:42px;letter-spacing:0;color:var(--paper);margin-bottom:10px}
+  #tito-app .copper-panel .links{display:grid;gap:7px}
+  #tito-app .copper-panel button.item{font-family:'Inter',sans-serif;min-height:48px;padding:13px 16px;font-size:15px;border:1px solid transparent;transition:background .15s}
+  #tito-app .copper-panel button.item:hover{background:#203440}
+  #tito-app .copper-panel button.item.active{border-color:#8d6245;background:#403128}
+  #tito-app .copper-panel button.item[hidden]{display:none!important}
+  #tito-app .desktop-section-title{display:block;font-family:'Anton',sans-serif;font-weight:400;font-size:32px;line-height:1.2;margin:0 0 14px}
+  #tito-app .narrativa{font-size:16px;padding:12px 0 20px}
+  #tito-app .section-title{font-size:19px}
+  #tito-app .frame{padding:20px 20px 20px 26px}
+  #tito-app .frame-name{font-size:25px}
+  #tito-app .frame-meta{line-height:1.5}
+  #tito-app .frame.open{grid-column:span 2}
+  #tito-app .detail-row{padding:14px 0}
+  #tito-app .cobro-proyecto{padding:20px}
+  #tito-app #tito-client-months{max-width:520px}
+  #tito-app #form-nuevo-cliente,#tito-app #form-nuevo-colab,#tito-app #form-nuevo-equipo{max-width:720px}
+  #tito-app #tab-config{max-width:960px}
+  #tito-app .copper-agenda h2{font-size:32px}
+  #tito-app .copper-booking{padding:20px}
+  #tito-app #tab-resumen.active-section{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:stretch}
+  #tito-app #tab-resumen>*{grid-column:1/-1;min-width:0;margin-bottom:0}
+  #tito-app .summary-intro{padding:0}
+  #tito-app .summary-intro h2{font-size:36px}
+  #tito-app .summary-intro p{max-width:760px;font-size:14px}
+  #tito-app .month-control{max-width:520px;margin-top:20px}
+  #tito-app #tab-resumen>.balance-card{grid-column:span 5;min-height:230px;padding:28px;display:flex;flex-direction:column;justify-content:center}
+  #tito-app .balance-value{font-size:52px;margin:16px 0}
+  #tito-app #tab-resumen>.summary-grid{grid-column:span 7;gap:16px}
+  #tito-app .summary-card{padding:20px}
+  #tito-app .summary-card-value{font-size:30px}
+  #tito-app #tab-resumen>.gato-card{grid-column:span 5;padding:24px}
+  #tito-app #tab-resumen>.editorial-card:not(.summary-breakdown){grid-column:span 7;padding:24px}
+  #tito-app .client-chart{height:150px}
+  #tito-app .chart-label{font-size:10px}
+  #tito-app #lista-breakdown{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
+  #tito-app #lista-breakdown .cobro-row{min-width:0}
+  #tito-app #tab-resumen>#summary-month-hub{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:0!important}
+  #tito-app #summary-month-hub .editorial-head{grid-column:1/-1;margin-bottom:0!important}
+  #tito-app #summary-month-hub .month-control{max-width:none;margin-bottom:0!important}
+  #tito-app .admin-stats{max-width:800px}
+  #tito-app #admin-user-form{max-width:720px}
+}
+
+@media(min-width:1440px){
+  #tito-app .filmstrip{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #tito-app .copper-agenda-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+@media(min-width:1900px){
+  #tito-app .filmstrip{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #tito-app .copper-panel button.item{transition:none}
+}

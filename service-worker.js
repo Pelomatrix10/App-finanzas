@@ -1,9 +1,10 @@
-const CACHE_NAME = "tito-github-v29-recordatorios-discretos";
+const CACHE_NAME = "tito-github-v30-responsive-desktop";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
   BASE,
   BASE + "index.html",
+  BASE + "responsive-layout.css",
   BASE + "supabase-config.js",
   BASE + "role-ui.js",
   BASE + "month-history.js",
