@@ -131,14 +131,19 @@
   }
 
   function renderPanel(){
-    const section=document.getElementById('tab-cobros');
+    let section=document.getElementById('tab-movimientos');
+    if(!section){
+      section=document.createElement('section');section.id='tab-movimientos';
+      const back=document.createElement('button');back.type='button';back.className='btn btn-ghost btn-sm';back.textContent='← Volver al resumen';back.style.marginBottom='18px';back.onclick=()=>activarPestana('resumen');
+      section.appendChild(back);document.querySelector('#tito-app main')?.appendChild(section);
+    }
     if(!section) return;
     let panel=document.getElementById('movimientos-mes-panel');
     if(!panel){
       panel=document.createElement('div');
       panel.id='movimientos-mes-panel';
       panel.style.marginBottom='22px';
-      section.insertAdjacentElement('afterbegin',panel);
+      section.appendChild(panel);
     }
     const items=movimientosDelMes(resumenMes);
     panel.innerHTML=renderAnaliticas(resumenMes)+`
@@ -160,7 +165,7 @@
 
   function abrirMovimientos(){
     renderPanel();
-    activarPestana('cobros');
+    activarPestana('movimientos');
     requestAnimationFrame(()=>{
       const panel=document.getElementById('movimientos-mes-panel');
       if(panel) panel.scrollIntoView({behavior:'smooth',block:'start'});
@@ -174,5 +179,6 @@
 
   asegurarHubMensual();
   actualizarHub();
+  renderPanel();
   if(typeof renderAll==='function') renderAll();
 })();
