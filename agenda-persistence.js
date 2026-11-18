@@ -54,7 +54,7 @@ async function edit(job){
  }catch(e){alert('No se pudieron cargar los clientes: '+e.message)}finally{busy=false}
 }
 function card(job){
- const box=el('article','copper-booking'),dateBox=el('div','copper-booking-date');box.dataset.jobId=job.id;dateBox.dataset.status=job.estado;
+ const box=el('article','copper-booking'),dateBox=el('div','copper-booking-date');box.dataset.jobId=job.id;box.dataset.agendaDate=job.fecha;dateBox.dataset.status=job.estado;
  const [year,month,day]=String(job.fecha||'').split('-').map(Number);
  dateBox.append(el('span','',month?new Intl.DateTimeFormat('es-PE',{month:'short'}).format(new Date(year,month-1,1)).toUpperCase():''),el('strong','',String(day||'--').padStart(2,'0')));
  const info=el('div','copper-booking-info');
@@ -112,7 +112,7 @@ async function refresh(){
   list.replaceChildren(el('h3','','Trabajos agendados'));
   if(!data?.length)list.append(el('p','copper-agenda-hint','Todavía no hay trabajos guardados.'));
   for(const job of data||[])list.append(card(job));loadedUser=uid;
-  window.dispatchEvent(new CustomEvent('tito-agenda-updated'));
+  window.dispatchEvent(new CustomEvent('tito-agenda-updated',{detail:{jobs:(data||[]).map(({id,fecha,estado})=>({id,fecha,estado}))}}));
  }catch(e){list.replaceChildren(el('p','copper-agenda-hint','No se pudo cargar Agenda: '+e.message))}finally{loading=false}
 }
 function reset(){delete form.dataset.editingId;delete form.dataset.pendingId;form.reset();options();create.checked=false;updateChoice()}

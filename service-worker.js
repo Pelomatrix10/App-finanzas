@@ -1,4 +1,4 @@
-const CACHE_NAME = "tito-github-v32-pagos-ordenados";
+const CACHE_NAME = "tito-github-v33-invitaciones-agenda";
 const BASE = self.registration.scope;
 
 const APP_SHELL = [
@@ -6,6 +6,7 @@ const APP_SHELL = [
   BASE + "index.html",
   BASE + "responsive-layout.css",
   BASE + "financial-analytics.css",
+  BASE + "agenda-collaboration.css",
   BASE + "supabase-config.js",
   BASE + "role-ui.js",
   BASE + "month-history.js",
@@ -13,6 +14,7 @@ const APP_SHELL = [
   BASE + "client-month-filter.js",
   BASE + "studio-noir-copper.js",
   BASE + "agenda-persistence.js",
+  BASE + "agenda-collaboration.js",
   BASE + "agenda-reminders.js",
   BASE + "beta-welcome.js",
   BASE + "manifest.json",

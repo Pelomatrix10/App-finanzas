@@ -1,0 +1,26 @@
+.tito-agenda-switch,.tito-calendar-controls,.tito-invite-actions{display:flex;gap:8px;flex-wrap:wrap}
+.tito-agenda-switch{margin-top:20px}
+.tito-agenda-switch button,.tito-calendar-grid button{min-height:38px}
+.tito-agenda-switch [aria-pressed=true],.tito-calendar-grid [aria-pressed=true]{background:var(--brass-soft);border-color:var(--brass)}
+.tito-calendar{max-width:860px;margin-top:14px;padding:clamp(8px,2vw,18px);background:var(--ink-2);border:1px solid var(--line);border-radius:12px}
+.tito-calendar-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;text-transform:capitalize}
+.tito-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:clamp(3px,1vw,8px)}
+.tito-calendar-weekday{text-align:center;color:var(--paper-dim);font-size:11px;margin-bottom:5px}
+.tito-calendar-grid button{display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap;padding:3px;font:inherit;font-size:13px}
+.tito-calendar-grid button[aria-current=date]{color:var(--brass);font-weight:bold}
+.tito-calendar-grid small{font-size:10px;border-radius:10px;background:var(--brass-soft);color:var(--paper);padding:1px 4px}
+.tito-calendar-controls{margin-top:10px}
+.tito-calendar-selection{text-transform:capitalize;color:var(--paper);font-size:14px}
+.tito-calendar[hidden],.copper-agenda-list .copper-booking[hidden],.copper-agenda-list .copper-agenda-hint[hidden]{display:none!important}
+.tito-invitation-inbox summary,.tito-outgoing summary{cursor:pointer;color:var(--brass);font-weight:600}
+.tito-outgoing{margin-top:12px;font-size:13px;overflow-wrap:anywhere}
+.tito-outgoing>button,.tito-invite-actions{margin-top:8px}
+.tito-invite-row{border-top:1px solid var(--line);margin-top:10px;padding:9px 0}
+.tito-invite-row p{margin:6px 0}
+.tito-invite-row a{display:inline-block;text-decoration:none}
+.tito-invite-dialog{width:min(92vw,440px);background:var(--ink-2);color:var(--paper);border:1px solid var(--brass);border-radius:14px;padding:20px}
+.tito-invite-dialog::backdrop{background:#0009}
+.tito-invite-dialog h2{font-size:20px;margin:0 0 15px}
+.tito-invite-dialog label{display:block;font-size:13px;margin-bottom:12px}
+.tito-invite-dialog label input,.tito-invite-dialog label select{display:block;width:100%;margin-top:6px;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--ink);color:var(--paper);font-size:16px}
+.tito-invite-dialog .tito-invite-actions{justify-content:flex-end;align-items:center}
